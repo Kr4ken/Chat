@@ -21,9 +21,10 @@ public class ChatMessage {
         Integer nameStart = formatMesage.indexOf("[");
         Integer nameEnd = formatMesage.indexOf("]");
         this.message = formatMesage.substring(nameEnd);
-        this.client = formatMesage.substring(nameStart,nameEnd);
+        this.client = formatMesage.substring(nameStart+1,nameEnd+1);
         this.date = new Date();
     }
+
     public String getFormatMessage(){
         return "[" + client + "]:" + message;
     }

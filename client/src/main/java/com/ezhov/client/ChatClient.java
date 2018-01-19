@@ -1,4 +1,4 @@
-package com.ezhov.server;
+package com.ezhov.client;
 
 public interface ChatClient {
     void start();

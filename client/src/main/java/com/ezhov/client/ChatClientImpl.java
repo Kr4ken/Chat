@@ -1,4 +1,4 @@
-package com.ezhov.server;
+package com.ezhov.client;
 
 import com.ezhov.connector.ChatConnector;
 import com.ezhov.connector.SocketChatConnector;
@@ -19,6 +19,11 @@ public class ChatClientImpl implements ChatClient {
     private String name;
     private Scanner scanner;
 
+    public ChatClientImpl(String name) {
+        this();
+        this.name = name;
+    }
+
     public ChatClientImpl() {
         connector = new SocketChatConnector();
         messages = new LinkedList<>();
@@ -36,6 +41,7 @@ public class ChatClientImpl implements ChatClient {
                     try {
 
                         while (isStarted) {
+                            System.out.println("Read server message");
                             ChatMessage mess = connector.readMessage();
                             messages.add(mess);
                             System.out.println(mess.getFormatMessage());
@@ -50,7 +56,10 @@ public class ChatClientImpl implements ChatClient {
                 public void run() {
                     try {
                         while (isStarted) {
-                            currentMessage = scanner.next();
+                            System.out.println("Read user message");
+                            currentMessage = scanner.nextLine();
+                            currentMessage+="\n";
+                            System.out.println("User message "  + currentMessage);
                             ChatMessage mess = new ChatMessage(currentMessage, name);
                             connector.sendMessage(mess);
                             currentMessage = "";

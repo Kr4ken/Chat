@@ -16,7 +16,7 @@ public class ServerApp {
             while (true){
                 String formatMessage = in.readLine();
                 System.out.println("Get message " + formatMessage);
-                formatMessage = "[SYSTEM] Message accepted";
+                formatMessage = "[SYSTEM] Message accepted\n";
                 out.write(formatMessage);
                 out.flush();
                 System.out.println("Send message " + formatMessage);
