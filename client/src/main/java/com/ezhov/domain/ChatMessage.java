@@ -7,12 +7,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatMessage {
     private final String messageFormat = "[%s|%s] %s";
-    private final String dateFormat = "HH:mm";
+    private final String dateFormat = "HH:mm:ss";
     private String message;
     private String client;
     private LocalTime time;
@@ -20,7 +21,7 @@ public class ChatMessage {
     private Pattern messagePattern;
 
     private void init(){
-        messagePattern = Pattern.compile("\\[\\d{2}:\\d{2}\\|\\w+\\] .+");
+        messagePattern = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\|\\w+\\] .+");
         dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat);
     }
 
@@ -46,7 +47,8 @@ public class ChatMessage {
     }
 
     public ChatMessage(String message, String client) throws IncorrectMessageException {
-        this(message, client, LocalTime.now());
+        // Set precision for seconds
+        this(message, client,LocalTime.now().withNano(0));
     }
 
     public void parseMessage(String formatMessage) throws IncorrectMessageException {
@@ -74,6 +76,19 @@ public class ChatMessage {
         }
 
 
+    }
+    @Override
+    public boolean equals(Object other){
+        if (other == null) return false;
+        if (other == this) return true;
+        if (!(other instanceof ChatMessage))return false;
+        ChatMessage otherChatMessage = (ChatMessage)other;
+        return client.equals(otherChatMessage.client) && message.equals(otherChatMessage.message) && time.equals(otherChatMessage.time);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(client, message, time);
     }
 
     public String getFormatMessage() throws IncorrectMessageException {

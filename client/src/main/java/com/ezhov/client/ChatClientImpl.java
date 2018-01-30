@@ -21,6 +21,9 @@ public class ChatClientImpl implements ChatClient {
     private String name;
     private Scanner scanner;
 
+    private Thread readerThread;
+    private Thread writerThread;
+
     private ConnectorSettings connectorSettings;
 
     public ChatClientImpl(String name) {
@@ -29,59 +32,72 @@ public class ChatClientImpl implements ChatClient {
     }
 
     public ChatClientImpl() {
-        connectorSettings = new ConnectorSettings(8989,"127.0.0.1");
+        connectorSettings = new ConnectorSettings(8989, "127.0.0.1");
         connector = new SocketChatConnector(connectorSettings);
         messages = new LinkedList<>();
         currentMessage = "";
         isStarted = false;
         scanner = new Scanner(System.in);
+        readerThread = new Thread() {
+            public void run() {
+                readMessages();
+            }
+        };
+        writerThread = new Thread() {
+            public void run() {
+                writeMessages();
+            }
+        };
+    }
+
+    private void readMessages() {
+
+        while (isStarted) {
+            try {
+                ChatMessage mess = connector.readMessage();
+                messages.add(mess);
+                System.out.println(mess.getFormatMessage());
+            } catch (IOException | IncorrectMessageException ex) {
+                Logger.getLogger(ChatClientImpl.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
+            }
+        }
+    }
+
+    private void writeMessages() {
+        while (isStarted) {
+            try {
+                currentMessage = scanner.nextLine();
+                currentMessage += "\n";
+                ChatMessage mess = new ChatMessage(currentMessage, name);
+                connector.sendMessage(mess);
+                currentMessage = "";
+            } catch (IOException | IncorrectMessageException ex) {
+                Logger.getLogger(ChatClientImpl.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
+            }
+        }
+
     }
 
     public void start() {
         try {
             connector.connect();
             isStarted = true;
-            Thread readerThread = new Thread() {
-                public void run() {
-                    try {
-
-                        while (isStarted) {
-                            ChatMessage mess = connector.readMessage();
-                            messages.add(mess);
-                            System.out.println(mess.getFormatMessage());
-                        }
-                    } catch (IOException | IncorrectMessageException ex) {
-                        isStarted = false;
-                        Logger.getLogger(ChatClientImpl.class.getName()).log(Level.WARNING, "Occured error during read server message" + ex);
-                    }
-                }
-            };
-            Thread writerThread = new Thread() {
-                public void run() {
-                    try {
-                        while (isStarted) {
-                            currentMessage = scanner.nextLine();
-                            currentMessage += "\n";
-                            ChatMessage mess = new ChatMessage(currentMessage, name);
-                            connector.sendMessage(mess);
-                            currentMessage = "";
-                        }
-                    } catch (IOException | IncorrectMessageException ex) {
-                        isStarted = false;
-                        Logger.getLogger(ChatClientImpl.class.getName()).log(Level.WARNING, "Occured error during read server message" + ex);
-                    }
-                }
-            };
             readerThread.start();
             writerThread.start();
         } catch (IOException ex) {
-            Logger.getLogger(ChatClientImpl.class.getName()).log(Level.WARNING, "Occured error during established server connection" + ex);
+            Logger.getLogger(ChatClientImpl.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
         }
 
     }
 
     public void end() {
         isStarted = false;
+        try {
+            connector.disconnect();
+        }catch (IOException ex){
+            Logger.getLogger(ChatClientImpl.class.getName()).log(Level.SEVERE, "Occured error on disconnecting server " + ex);
+        }
+
     }
 
 

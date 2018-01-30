@@ -16,7 +16,7 @@ public class ServerApp {
             Thread spamerThread = new Thread() {
                 public void run() {
                     try {
-                        String spammerMessage = "[12:33|SYSTEM] I'm a spammer message\n";
+                        String spammerMessage = "[12:33:22|SYSTEM] I'm a spammer message\n";
                         while (true) {
                             out.write(spammerMessage);
                             out.flush();
@@ -32,7 +32,7 @@ public class ServerApp {
             while (true) {
                 String formatMessage = in.readLine();
                 System.out.println("Get message " + formatMessage);
-                formatMessage = "[12:33|SYSTEM] Message accepted\n";
+                formatMessage = "[12:33:22|SYSTEM] Message accepted\n";
 
                 out.write(formatMessage);
                 out.flush();

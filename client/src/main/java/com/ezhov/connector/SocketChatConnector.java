@@ -2,7 +2,6 @@ package com.ezhov.connector;
 
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
-import org.omg.CORBA.CODESET_INCOMPATIBLE;
 
 import java.io.*;
 import java.net.Socket;
@@ -33,7 +32,7 @@ public class SocketChatConnector extends ChatConnector {
 
     @Override
     public void sendMessage(ChatMessage message) throws IOException,IncorrectMessageException {
-        out.write(message.getFormatMessage());
+        out.write(message.getFormatMessage() + "\n");
         out.flush();
     }
 
@@ -41,5 +40,10 @@ public class SocketChatConnector extends ChatConnector {
     public ChatMessage readMessage() throws IOException,IncorrectMessageException {
         String formatMessage = in.readLine();
         return ChatMessage.fromFormatString(formatMessage);
+    }
+
+    @Override
+    public Boolean checkStatus() {
+        return socket != null && socket.isConnected() && !socket.isClosed() ;
     }
 }

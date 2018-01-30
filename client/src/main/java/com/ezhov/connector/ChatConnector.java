@@ -16,4 +16,5 @@ public abstract class ChatConnector {
     abstract public void disconnect() throws IOException;
     abstract public void sendMessage(ChatMessage message) throws IOException,IncorrectMessageException;
     abstract public ChatMessage readMessage() throws IOException,IncorrectMessageException;
+    abstract public Boolean checkStatus();
 }

@@ -18,8 +18,8 @@ public class TestChatMessage {
     @BeforeClass
     public static void onlyPreparing() {
         try {
-            string = "18:35";
-            format = DateTimeFormatter.ofPattern("HH:mm");
+            string = "18:35:12";
+            format = DateTimeFormatter.ofPattern("HH:mm:ss");
             time = LocalTime.parse(string, format);
         } catch (Exception e) {
 
@@ -37,7 +37,7 @@ public class TestChatMessage {
     @Test
     public void testFormatMessage() throws Exception {
         ChatMessage message = new ChatMessage("Hi", "Kirill", time);
-        assertEquals("[18:35|Kirill] Hi", message.getFormatMessage());
+        assertEquals("[18:35:12|Kirill] Hi", message.getFormatMessage());
     }
 
     private boolean isMessageCorrect(String message, String client, LocalTime time) {
@@ -82,13 +82,13 @@ public class TestChatMessage {
 
     @Test
     public void testMessageParse() {
-        String message = "[12:35|Kraken] Hi there";
+        String message = "[12:35:12|Kraken] Hi there";
         assertTrue(isParseMessageCorrect(message));
 
         message = "[|Kraken] Hi there";
         assertFalse(isParseMessageCorrect(message));
 
-        message = "[12:35|] Hi there";
+        message = "[12:35:11|] Hi there";
         assertFalse(isParseMessageCorrect(message));
 
         message = "[] Hi there";
@@ -100,43 +100,43 @@ public class TestChatMessage {
         message = null;
         assertFalse(isParseMessageCorrect(message));
 
-        message = "[12:89|Kraken] Hi there";
+        message = "[12:89:11|Kraken] Hi there";
         assertFalse(isParseMessageCorrect(message));
 
-        message = "[12:55|Kraken] g";
+        message = "[12:55:11|Kraken] g";
         assertTrue(isParseMessageCorrect(message));
 
         message = "aldkfjlaksdj 3[12:89|Kraken]";
         assertFalse(isParseMessageCorrect(message));
 
-        message = "[12:89Kraken] asd[fap[|[]";
+        message = "[12:89:33Kraken] asd[fap[|[]";
         assertFalse(isParseMessageCorrect(message));
     }
 
     @Test
     public void correctParse() throws Exception{
-        String message = "[12:35|Kraken] Hi there";
+        String message = "[12:35:32|Kraken] Hi there";
         ChatMessage mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("12:35",format),mess.getTime());
+        assertEquals(LocalTime.parse("12:35:32",format),mess.getTime());
         assertEquals("Hi there",mess.getMessage());
         assertEquals("Kraken",mess.getClient());
 
-        message = "[14:22|SYSTEM] Enter command /help";
+        message = "[14:22:32|SYSTEM] Enter command /help";
         mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("14:22",format),mess.getTime());
+        assertEquals(LocalTime.parse("14:22:32",format),mess.getTime());
         assertEquals("Enter command /help",mess.getMessage());
         assertEquals("SYSTEM",mess.getClient());
 
 
-        message = "[14:22|fskhfkj] fff";
+        message = "[14:22:12|fskhfkj] fff";
         mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("14:22",format),mess.getTime());
+        assertEquals(LocalTime.parse("14:22:12",format),mess.getTime());
         assertEquals("fff",mess.getMessage());
         assertEquals("fskhfkj",mess.getClient());
 
-        message = "[14:22|SYSTEM] [][][][|p[p{}";
+        message = "[14:22:12|SYSTEM] [][][][|p[p{}";
         mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("14:22",format),mess.getTime());
+        assertEquals(LocalTime.parse("14:22:12",format),mess.getTime());
         assertEquals("[][][][|p[p{}",mess.getMessage());
         assertEquals("SYSTEM",mess.getClient());
 

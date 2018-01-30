@@ -8,6 +8,7 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <junit.version>4.12</junit.version>
+        <laterna.version>3.0.0</laterna.version>
     </properties>
     <dependencies>
         <dependency>
@@ -16,11 +17,30 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <!--Library for console output-->
+        <dependency>
+            <groupId>com.googlecode.lanterna</groupId>
+            <artifactId>lanterna</artifactId>
+            <version>${laterna.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <finalName>ChatClient</finalName>
         <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.ezhov.ClientApp</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
             <!-- Set a JDK compiler level -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
