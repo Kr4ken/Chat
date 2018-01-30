@@ -1,8 +1,10 @@
 package com.ezhov.client;
 
 import com.ezhov.connector.ChatConnector;
+import com.ezhov.connector.ConnectorSettings;
 import com.ezhov.connector.SocketChatConnector;
 import com.ezhov.domain.ChatMessage;
+import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -19,13 +21,16 @@ public class ChatClientImpl implements ChatClient {
     private String name;
     private Scanner scanner;
 
+    private ConnectorSettings connectorSettings;
+
     public ChatClientImpl(String name) {
         this();
         this.name = name;
     }
 
     public ChatClientImpl() {
-        connector = new SocketChatConnector();
+        connectorSettings = new ConnectorSettings(8989,"127.0.0.1");
+        connector = new SocketChatConnector(connectorSettings);
         messages = new LinkedList<>();
         currentMessage = "";
         isStarted = false;
@@ -41,12 +46,11 @@ public class ChatClientImpl implements ChatClient {
                     try {
 
                         while (isStarted) {
-                            System.out.println("Read server message");
                             ChatMessage mess = connector.readMessage();
                             messages.add(mess);
                             System.out.println(mess.getFormatMessage());
                         }
-                    } catch (IOException ex) {
+                    } catch (IOException | IncorrectMessageException ex) {
                         isStarted = false;
                         Logger.getLogger(ChatClientImpl.class.getName()).log(Level.WARNING, "Occured error during read server message" + ex);
                     }
@@ -56,15 +60,13 @@ public class ChatClientImpl implements ChatClient {
                 public void run() {
                     try {
                         while (isStarted) {
-                            System.out.println("Read user message");
                             currentMessage = scanner.nextLine();
-                            currentMessage+="\n";
-                            System.out.println("User message "  + currentMessage);
+                            currentMessage += "\n";
                             ChatMessage mess = new ChatMessage(currentMessage, name);
                             connector.sendMessage(mess);
                             currentMessage = "";
                         }
-                    } catch (IOException ex) {
+                    } catch (IOException | IncorrectMessageException ex) {
                         isStarted = false;
                         Logger.getLogger(ChatClientImpl.class.getName()).log(Level.WARNING, "Occured error during read server message" + ex);
                     }

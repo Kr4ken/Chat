@@ -1,43 +1,107 @@
 package com.ezhov.domain;
 
-import java.util.Date;
+import com.ezhov.exceptions.IncorrectMessageException;
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatMessage {
-    private final String message;
-    private final String client;
-    private final Date date;
+    private final String messageFormat = "[%s|%s] %s";
+    private final String dateFormat = "HH:mm";
+    private String message;
+    private String client;
+    private LocalTime time;
+    private DateTimeFormatter dateTimeFormatter;
+    private Pattern messagePattern;
 
-    public ChatMessage(String message, String client, Date date) {
+    private void init(){
+        messagePattern = Pattern.compile("\\[\\d{2}:\\d{2}\\|\\w+\\] .+");
+        dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat);
+    }
+
+    private ChatMessage(){
+        init();
+    }
+
+
+    public static ChatMessage fromFormatString(String formatMessage) throws IncorrectMessageException{
+        ChatMessage result = new ChatMessage();
+        result.parseMessage(formatMessage);
+        return result;
+    }
+
+
+    public ChatMessage(String message, String client, LocalTime time) throws IncorrectMessageException {
+        if (client == null || client.equals("") || time == null || message == null || message.equals(""))
+            throw new IncorrectMessageException("Incorrect message params");
         this.message = message;
         this.client = client;
-        this.date = date;
+        this.time = time;
+        init();
     }
 
-    public ChatMessage(String message, String client) {
-        this(message, client, new Date());
+    public ChatMessage(String message, String client) throws IncorrectMessageException {
+        this(message, client, LocalTime.now());
     }
 
-    public ChatMessage(String formatMesage) {
-        Integer nameStart = formatMesage.indexOf("[");
-        Integer nameEnd = formatMesage.indexOf("]");
-        this.message = formatMesage.substring(nameEnd);
-        this.client = formatMesage.substring(nameStart+1,nameEnd+1);
-        this.date = new Date();
+    public void parseMessage(String formatMessage) throws IncorrectMessageException {
+        if(formatMessage == null || formatMessage.equals(""))
+            throw new IncorrectMessageException("Error. Null message for format: " + formatMessage);
+        Matcher matcher = messagePattern.matcher(formatMessage);
+
+        if(matcher.matches()){
+            Integer dateStart = formatMessage.indexOf("[") + 1;
+            Integer dateEnd = formatMessage.indexOf("|");
+            Integer nameStart = formatMessage.indexOf("|") + 1;
+            Integer nameEnd = formatMessage.indexOf("]");
+            this.message = formatMessage.substring(nameEnd+2);
+            this.client = formatMessage.substring(nameStart, nameEnd);
+            String timeString = formatMessage.substring(dateStart, dateEnd);
+            try {
+                this.time = LocalTime.parse(timeString, dateTimeFormatter);
+            } catch (DateTimeParseException dpe) {
+                throw new IncorrectMessageException(formatMessage + " : " + dpe.getLocalizedMessage());
+            }
+
+        }
+        else {
+            throw new IncorrectMessageException("Error. Incorrect message format: " + formatMessage);
+        }
+
+
     }
 
-    public String getFormatMessage(){
-        return "[" + client + "]:" + message;
+    public String getFormatMessage() throws IncorrectMessageException {
+        return String.format(messageFormat, time.format(dateTimeFormatter), client, message);
     }
 
     public String getMessage() {
         return message;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public String getClient() {
         return client;
     }
 
-    public Date getDate() {
-        return date;
+    public void setClient(String client) {
+        this.client = client;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 }
+

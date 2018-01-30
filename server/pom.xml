@@ -16,15 +16,10 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
-        <finalName>ChatClient</finalName>
+        <finalName>ChatServer</finalName>
         <plugins>
             <!-- Set a JDK compiler level -->
             <plugin>
@@ -49,7 +44,7 @@
                     <archive>
                         <manifest>
                             <!-- Jar file entry point -->
-                            <mainClass>com.ezhov.ClientApp</mainClass>
+                            <mainClass>com.ezhov.ServerApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
