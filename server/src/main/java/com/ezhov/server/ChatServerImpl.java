@@ -20,9 +20,16 @@ public class ChatServerImpl implements ChatServer {
     ConnectorSettings settings;
     List<ChatMessage> messages;
     List<ChatClient> clients;
+    final String name = "SYSTEM";
+
+    @Override
+    public String getSystemUserName(){
+       return name;
+    }
 
 
     public ChatServerImpl() {
+        System.out.println("Server constructor!");
         settings = new ConnectorSettings(8989, "127.0.0.1");
         chatListener = new SocketChatListener(settings);
         isStarted = false;
@@ -32,6 +39,7 @@ public class ChatServerImpl implements ChatServer {
 
     @Override
     public synchronized void addMessage(ChatMessage chatMessage) {
+        System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
         for (ChatClient client: clients) {
           client.sendMessage(chatMessage);
@@ -39,6 +47,7 @@ public class ChatServerImpl implements ChatServer {
     }
 
     public synchronized void addClient(ChatClient client){
+        System.out.println("Add new client in list :" + client.getName());
         clients.add(client);
     }
 
@@ -60,6 +69,7 @@ public class ChatServerImpl implements ChatServer {
 
     @Override
     public void run() {
+        System.out.println("Server start");
         try {
             chatListener.connect();
             isStarted = true;
@@ -70,6 +80,7 @@ public class ChatServerImpl implements ChatServer {
                 }
             };
             listener.start();
+            System.out.println("Listener start");
         } catch (IOException ex) {
             Logger.getLogger(ChatServerImpl.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
         }
@@ -78,5 +89,6 @@ public class ChatServerImpl implements ChatServer {
     @Override
     public void stop() {
         isStarted = false;
+        System.out.println("Server stop");
     }
 }

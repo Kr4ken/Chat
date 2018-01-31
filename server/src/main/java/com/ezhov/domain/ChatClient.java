@@ -16,7 +16,8 @@ public class ChatClient {
     private Boolean isStarted;
 
     private Thread readerThread;
-    private Thread writerThread;
+
+    private final String commandPattern  = "^\\/\\w+\\ *(\\w+\\ *)*";
 
     public ChatClient(ChatServer server, ChatConnector connector) {
         isStarted = false;
@@ -27,26 +28,35 @@ public class ChatClient {
                 readMessage();
             }
         };
-//        writerThread = new Thread() {
-//            public void run() {
-//                sendMessage();
-//            }
-//        };
     }
 
     private void readMessage() {
         while (isStarted) {
             try {
                 ChatMessage message = connector.readMessage();
-                server.addMessage(message);
+                System.out.println("ChatClient get new message " + message.getClient() + ":" + message.getMessage());
+                // If user registred
+                if(isAllowed(message)) {
+                    System.out.println("User register. All Ok");
+                    server.addMessage(message);
+                } else {
+                    System.out.println("User not register. Need registration");
+                    ChatMessage errorMessage = new ChatMessage("You not authorized. Use /register to register yourserlf, or /help to show all command list",server.getSystemUserName());
+                    sendMessage(errorMessage);
+                }
             } catch (IOException | IncorrectMessageException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
             }
         }
     }
 
+    private Boolean isAllowed(ChatMessage message){
+        return name != null &&  name.equals(message.getClient());
+    }
+
     public void sendMessage(ChatMessage message) {
         try {
+            System.out.println("Send message to " + name + " Message:" + message.getMessage());
             connector.sendMessage(message);
         } catch (IOException | IncorrectMessageException ex) {
             Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
@@ -56,6 +66,7 @@ public class ChatClient {
 
     public void start() {
         isStarted = true;
+        System.out.println("Client readerStart");
         try {
             connector.connect();
         } catch (IOException ex) {
@@ -65,6 +76,7 @@ public class ChatClient {
 
     public void stop() {
         isStarted = false;
+        System.out.println("Client reader stop");
         try {
             connector.disconnect();
         } catch (IOException ex) {

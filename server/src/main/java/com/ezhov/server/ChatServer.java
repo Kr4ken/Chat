@@ -6,4 +6,5 @@ public interface ChatServer {
     void run();
     void stop();
     void addMessage(ChatMessage chatMessage);
+    String getSystemUserName();
 }

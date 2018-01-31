@@ -32,7 +32,7 @@ public class SocketChatConnector extends ChatConnector {
 
     @Override
     public void sendMessage(ChatMessage message) throws IOException,IncorrectMessageException {
-        out.write(message.getFormatMessage() + "\n");
+        out.write(message.getFormatMessage());
         out.flush();
     }
 
