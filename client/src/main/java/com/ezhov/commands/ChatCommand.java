@@ -7,7 +7,8 @@ import java.util.List;
 
 public abstract class ChatCommand {
     protected String command;
-    abstract public String action(List<String> params) throws IncorrectCommandFormat,IncorrectMessageException;
-
+    protected String info;
+    abstract public void action(List<String> params) throws IncorrectCommandFormat,IncorrectMessageException;
     public String getCommand() { return command; }
+    public String getInfo() { return info; }
 }

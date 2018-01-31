@@ -14,6 +14,6 @@ public interface ChatServer {
     List<ChatClient> getClients();
     List<ChatMessage> getLastMessages();
     List<ChatCommand> getCommands();
-    String executeCommand(String command,List<String> params);
-    String executeCommand(ChatClient client, String command,List<String> params);
+    void executeCommand(String command,List<String> params);
+    void executeCommand(ChatClient client, String command,List<String> params);
 }

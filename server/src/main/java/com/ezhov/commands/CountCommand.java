@@ -8,23 +8,20 @@ import com.ezhov.server.ChatServer;
 
 import java.util.List;
 
-public class HelpChatCommand extends ChatCommand {
-    public HelpChatCommand(){
-        command = "/help";
-        info = "List all avaliable commands";
+public class CountCommand extends ChatCommand {
+    public CountCommand() {
+        command = "/count";
+        info = "Show exist count clients in chat";
     }
 
     @Override
     public void action(List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
-        action(null,null,params);
     }
 
     @Override
     public void action(ChatClient client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
-        System.out.println("Execute help command");
-        for(ChatCommand chatCommand:server.getCommands()){
-            ChatMessage answerMessage = new ChatMessage(String.format("> %s - %s",chatCommand.getCommand(),chatCommand.getInfo()), server.getSystemUserName());
-            client.sendMessage(answerMessage);
-        }
+        System.out.println("Execute count command");
+        ChatMessage countMessage = new ChatMessage(String.format("%d Clients in chat now",server.getClients().size()), server.getSystemUserName());
+        client.sendMessage(countMessage);
     }
 }

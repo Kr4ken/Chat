@@ -53,6 +53,7 @@ public class SocketChatConnector extends ChatConnector {
 
     @Override
     public ChatMessage readMessage() throws IOException,IncorrectMessageException {
+//        String formatMessage = in.readLine();
         String formatMessage = in.readLine();
         return ChatMessage.fromFormatString(formatMessage);
     }

@@ -5,6 +5,12 @@ public class ConnectorSettings {
     private String hostName;
 
 
+    public static ConnectorSettings getDefault(){
+        ConnectorSettings connectorSettings = new ConnectorSettings(8989,"127.0.0.1");
+        return connectorSettings;
+    }
+
+
     public ConnectorSettings(Integer portNumber, String hostName) {
         this.portNumber = portNumber;
         this.hostName = hostName;

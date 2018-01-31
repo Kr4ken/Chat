@@ -83,6 +83,7 @@ public class ChatClient {
                 }
             } catch (IOException | IncorrectMessageException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
+                stop();
             }
         }
     }
@@ -107,6 +108,7 @@ public class ChatClient {
         try {
             connector.connect();
         } catch (IOException ex) {
+            stop();
         }
         readerThread.start();
     }
@@ -114,6 +116,7 @@ public class ChatClient {
     public void stop() {
         isStarted = false;
         System.out.println("Client reader stop");
+        server.getClients().remove(this);
         try {
             connector.disconnect();
         } catch (IOException ex) {

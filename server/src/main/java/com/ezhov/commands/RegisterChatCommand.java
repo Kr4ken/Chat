@@ -5,14 +5,13 @@ import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
 import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.List;
 
 public class RegisterChatCommand  extends ChatCommand{
      public RegisterChatCommand(){
         command = "/register";
-        commentary = "Command for registration. Use when you wanna connect to chat or change name";
+        info = "Command for registration. Use when you wanna connect to chat or change name";
     }
 
     private Boolean isValidName(ChatServer server, String name)
@@ -22,12 +21,12 @@ public class RegisterChatCommand  extends ChatCommand{
         return !systemEquals && !nameExist;
     }
     @Override
-    public String action(List<String> params) throws IncorrectCommandFormat,IncorrectMessageException {
-         return null;
+    public void action(List<String> params) throws IncorrectCommandFormat,IncorrectMessageException {
+         action(null,null,params);
     }
 
     @Override
-    public String action(ChatClient client,ChatServer server, List<String> params) throws IncorrectCommandFormat,IncorrectMessageException {
+    public void action(ChatClient client,ChatServer server, List<String> params) throws IncorrectCommandFormat,IncorrectMessageException {
          System.out.println("Execute register command withs params");
         if(params.size() != 1 || params.get(0) == null || params.get(0).equals(""))
             throw new IncorrectCommandFormat("Incorrect params for command " + command);
@@ -51,6 +50,5 @@ public class RegisterChatCommand  extends ChatCommand{
             ChatMessage answerMessage = new ChatMessage("Name " + name + " already in use. Choose another one.",server.getSystemUserName());
             client.sendMessage(answerMessage);
         }
-        return null;
     }
 }

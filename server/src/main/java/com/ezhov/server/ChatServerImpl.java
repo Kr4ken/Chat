@@ -1,8 +1,6 @@
 package com.ezhov.server;
 
-import com.ezhov.commands.ChatCommand;
-import com.ezhov.commands.HelpChatCommand;
-import com.ezhov.commands.RegisterChatCommand;
+import com.ezhov.commands.*;
 import com.ezhov.connector.ChatConnector;
 import com.ezhov.connector.ChatListener;
 import com.ezhov.connector.ConnectorSettings;
@@ -34,7 +32,9 @@ public class ChatServerImpl implements ChatServer {
     private void initCommands(){
         commands =  new LinkedList<>();
         commands.add(new RegisterChatCommand());
+        commands.add(new CountCommand());
         commands.add(new HelpChatCommand());
+        commands.add(new CloseCommand());
     }
 
     @Override
@@ -48,20 +48,16 @@ public class ChatServerImpl implements ChatServer {
     }
 
     @Override
-    public String executeCommand(String command, List<String> params) {
+    public void executeCommand(String command, List<String> params) {
         Optional<ChatCommand> chatCommand =  commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
         if(chatCommand.isPresent()){
             try {
-                return chatCommand.get().action(params);
+                chatCommand.get().action(params);
             }
             catch (IncorrectMessageException | IncorrectCommandFormat ex){
 
             }
         }
-        else {
-           return String.format("Command %s not found",command);
-        }
-        return null;
     }
 
     @Override
@@ -88,26 +84,33 @@ public class ChatServerImpl implements ChatServer {
         System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
         for (ChatClient client: clients) {
-          client.sendMessage(chatMessage);
+           //Don't send message to yourself
+            if(!client.getName().equals(chatMessage.getClient()))
+                client.sendMessage(chatMessage);
         }
     }
 
     @Override
-    public String executeCommand(ChatClient client, String command, List<String> params) {
+    public void executeCommand(ChatClient client, String command, List<String> params) {
         Optional<ChatCommand> chatCommand =  commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
         if(chatCommand.isPresent()){
             System.out.println("Command found execute ");
             try {
-                return chatCommand.get().action(client,this,params);
+                chatCommand.get().action(client,this,params);
             }
             catch (IncorrectMessageException | IncorrectCommandFormat ex){
 
             }
         }
+        // Command not found
         else {
-            return String.format("Command %s not found",command);
+            try {
+                ChatMessage alertMessage = new ChatMessage("Command " + command + " not found", getSystemUserName());
+                client.sendMessage(alertMessage);
+            } catch (Exception e){
+
+            }
         }
-        return null;
     }
 
     public synchronized void addClient(ChatClient client){

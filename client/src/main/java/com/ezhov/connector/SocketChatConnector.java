@@ -6,14 +6,15 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import java.io.*;
 import java.net.Socket;
 
-public class SocketChatConnector extends ChatConnector {
+public class SocketChatConnector implements ChatConnector {
 
     private Socket socket;
     private BufferedReader in;
     private BufferedWriter out;
+    private ConnectorSettings settings;
 
     public SocketChatConnector(ConnectorSettings settings){
-        super(settings);
+        this.settings = settings;
     }
 
     @Override
@@ -32,7 +33,7 @@ public class SocketChatConnector extends ChatConnector {
 
     @Override
     public void sendMessage(ChatMessage message) throws IOException,IncorrectMessageException {
-        out.write(message.getFormatMessage());
+        out.write(message.getFormatMessage() + "\n");
         out.flush();
     }
 
