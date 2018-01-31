@@ -1,17 +1,24 @@
 package com.ezhov.server;
 
+import com.ezhov.commands.ChatCommand;
+import com.ezhov.commands.HelpChatCommand;
+import com.ezhov.commands.RegisterChatCommand;
 import com.ezhov.connector.ChatConnector;
 import com.ezhov.connector.ChatListener;
 import com.ezhov.connector.ConnectorSettings;
 import com.ezhov.connector.SocketChatListener;
 import com.ezhov.domain.ChatClient;
 import com.ezhov.domain.ChatMessage;
+import com.ezhov.exceptions.IncorrectCommandFormat;
+import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ChatServerImpl implements ChatServer {
 
@@ -20,13 +27,52 @@ public class ChatServerImpl implements ChatServer {
     ConnectorSettings settings;
     List<ChatMessage> messages;
     List<ChatClient> clients;
+    List<ChatCommand> commands;
     final String name = "SYSTEM";
+    final Integer lastMessageCount = 100;
+
+    private void initCommands(){
+        commands =  new LinkedList<>();
+        commands.add(new RegisterChatCommand());
+        commands.add(new HelpChatCommand());
+    }
 
     @Override
     public String getSystemUserName(){
        return name;
     }
 
+    @Override
+    public List<ChatClient> getClients() {
+        return clients;
+    }
+
+    @Override
+    public String executeCommand(String command, List<String> params) {
+        Optional<ChatCommand> chatCommand =  commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
+        if(chatCommand.isPresent()){
+            try {
+                return chatCommand.get().action(params);
+            }
+            catch (IncorrectMessageException | IncorrectCommandFormat ex){
+
+            }
+        }
+        else {
+           return String.format("Command %s not found",command);
+        }
+        return null;
+    }
+
+    @Override
+    public List<ChatMessage> getLastMessages() {
+        return messages.stream().limit(lastMessageCount).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ChatCommand> getCommands() {
+        return commands;
+    }
 
     public ChatServerImpl() {
         System.out.println("Server constructor!");
@@ -44,6 +90,24 @@ public class ChatServerImpl implements ChatServer {
         for (ChatClient client: clients) {
           client.sendMessage(chatMessage);
         }
+    }
+
+    @Override
+    public String executeCommand(ChatClient client, String command, List<String> params) {
+        Optional<ChatCommand> chatCommand =  commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
+        if(chatCommand.isPresent()){
+            System.out.println("Command found execute ");
+            try {
+                return chatCommand.get().action(client,this,params);
+            }
+            catch (IncorrectMessageException | IncorrectCommandFormat ex){
+
+            }
+        }
+        else {
+            return String.format("Command %s not found",command);
+        }
+        return null;
     }
 
     public synchronized void addClient(ChatClient client){
@@ -70,6 +134,7 @@ public class ChatServerImpl implements ChatServer {
     @Override
     public void run() {
         System.out.println("Server start");
+        initCommands();
         try {
             chatListener.connect();
             isStarted = true;

@@ -5,8 +5,14 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import static java.util.Arrays.asList;
 
 public class ChatClient {
     private String name;
@@ -17,7 +23,8 @@ public class ChatClient {
 
     private Thread readerThread;
 
-    private final String commandPattern  = "^\\/\\w+\\ *(\\w+\\ *)*";
+    private final String commandPatternString  = "^\\/\\w+\\ *(\\w+\\ *)*";
+    private Pattern commandPattern;
 
     public ChatClient(ChatServer server, ChatConnector connector) {
         isStarted = false;
@@ -28,6 +35,29 @@ public class ChatClient {
                 readMessage();
             }
         };
+        commandPattern = Pattern.compile(commandPatternString);
+    }
+
+    private Boolean isCommand(String message){
+        return commandPattern.matcher(message).matches();
+    }
+
+    private String getCommandFromMessage(String message){
+        if(isCommand(message)){
+            //
+            return message.split(" ")[0];
+        }
+        return null;
+    }
+
+    private List<String> getParamsFromMessage(String message){
+        if(isCommand(message)){
+//            List<String> params =  Arrays.asList(message.split(" "));
+            String[] params =  message.split(" ");
+            params = Arrays.copyOfRange(params,1,params.length);
+            return Arrays.asList(params);
+        }
+        return null;
     }
 
     private void readMessage() {
@@ -35,14 +65,21 @@ public class ChatClient {
             try {
                 ChatMessage message = connector.readMessage();
                 System.out.println("ChatClient get new message " + message.getClient() + ":" + message.getMessage());
-                // If user registred
-                if(isAllowed(message)) {
-                    System.out.println("User register. All Ok");
-                    server.addMessage(message);
-                } else {
-                    System.out.println("User not register. Need registration");
-                    ChatMessage errorMessage = new ChatMessage("You not authorized. Use /register to register yourserlf, or /help to show all command list",server.getSystemUserName());
-                    sendMessage(errorMessage);
+                // If command then do without registration(
+                if(isCommand(message.getMessage())){
+                    System.out.println("Message is command. Trying execute");
+                    server.executeCommand(this,getCommandFromMessage(message.getMessage()), getParamsFromMessage(message.getMessage()));
+                }
+                else {
+                    // If user registred
+                    if (isAllowed(message)) {
+                        System.out.println("User register. All Ok");
+                        server.addMessage(message);
+                    } else {
+                        System.out.println("User not register. Need registration");
+                        ChatMessage errorMessage = new ChatMessage("You not authorized. Use /register to register yourserlf, or /help to show all command list", server.getSystemUserName());
+                        sendMessage(errorMessage);
+                    }
                 }
             } catch (IOException | IncorrectMessageException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
