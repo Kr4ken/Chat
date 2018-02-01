@@ -8,10 +8,8 @@ import java.util.List;
 
 public class CloseCommand extends ChatCommand{
 
-    protected ChatClient client;
-
     public CloseCommand(ChatClient client) {
-        this.client = client;
+        super(client);
         command = "/close";
         info = "Close all connections. And close chat";
     }

@@ -44,16 +44,8 @@ public abstract class ChatClient {
         commandPattern = Pattern.compile(commandPatternString);
         messages = new LinkedList<>();
         isStarted = false;
-        readerThread = new Thread() {
-            public void run() {
-                readMessages();
-            }
-        };
-        writerThread = new Thread() {
-            public void run() {
-                writeMessages();
-            }
-        };
+        readerThread = new Thread() { public void run() { readMessages(); } };
+        writerThread = new Thread() { public void run() { writeMessages(); } };
     }
 
     public void connect() {
@@ -62,15 +54,18 @@ public abstract class ChatClient {
                 connector.connect();
             }
         } catch (IOException ex) {
-            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
         }
     }
 
     public void disconnect() {
         try {
             connector.disconnect();
+            inputStream.close();
+            printStream.close();
+            scanner.close();
         } catch (IOException ex) {
-            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
         }
     }
 
@@ -102,17 +97,16 @@ public abstract class ChatClient {
             try {
                 chatCommand.get().action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-                Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage());
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage());
             }
         } else {
-            String.format("Server command %s not found", command);
+            printStream.println(String.format("Command %s not found", command));
         }
     }
 
     protected void reconnect(){
         printStream.println("Server connection error. Trying to reconnect? (y/n) ");
         String answer =  new Scanner(inputStream).nextLine();
-//        String answer =  scanner.nextLine();
         if(answer.equals("y")){
             stop();
             start();
@@ -145,7 +139,7 @@ public abstract class ChatClient {
                 // Add endline symbol in the end
                 ChatMessage mess = new ChatMessage(currentMessage, name);
                 connector.sendMessage(mess);
-                currentMessage = "";
+                currentMessage = null;
             } catch (IncorrectMessageException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message " + ex);
             } catch (IOException ex) {

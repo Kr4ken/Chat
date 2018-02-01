@@ -8,8 +8,8 @@
 [12:35:34|Kraken] Anybody here
 [12:35:45|Kraken] /help
 [12:36:02|SYSTEM] Avaliable commands 
-				/help - help
-				/rename - rename
+[12:36:02|SYSTEM]>/help - help
+[12:36:02|SYSTEM]>/rename - rename
 [12:36:75|Kraken] /help
 
 ```

@@ -8,10 +8,9 @@ import java.util.List;
 
 public class RegisterChatCommand  extends ChatCommand{
 
-    protected ChatClient client;
 
     public RegisterChatCommand(ChatClient client) {
-        this.client = client;
+        super(client);
         command = "/register";
         info = "Client side command to registration";
     }

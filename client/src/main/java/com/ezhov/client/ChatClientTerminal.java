@@ -28,6 +28,7 @@ public class ChatClientTerminal extends ChatClient {
 
     public ChatClientTerminal(ClientSettings clientSettings){
         super();
+        this.clientSettings = clientSettings;
         connectorSettings = clientSettings.getConnectorSettings();
         connector = new SocketChatConnector(connectorSettings);
         inputStream = System.in;
@@ -37,33 +38,18 @@ public class ChatClientTerminal extends ChatClient {
         startInfoMessage = "Welcome to chat.\nTo start chatting type \"/register <Nickname>\" to registration, and continue conversation.\nTo end chatting write \"/close\"\n";
     }
 
-//    public ChatClientTerminal(String name) {
-//        this();
-//        this.name = name;
-//    }
-//
-//    public ChatClientTerminal() {
-//        super();
-//        connectorSettings = new ConnectorSettings(8989, "127.0.0.1");
-//        connector = new SocketChatConnector(connectorSettings);
-//        inputStream = System.in;
-//        printStream = System.out;
-//        scanner = new Scanner(inputStream);
-//    }
-
     public void connect() {
+        super.connect();
         try {
-            connector.connect();
-            if(name != null || !name.equals("")){
-                ChatMessage registerMessage = new ChatMessage("/register "+name,name);
+            if (name != null || !name.equals("")) {
+                ChatMessage registerMessage = new ChatMessage("/register " + name, name);
                 connector.sendMessage(registerMessage);
             }
         } catch (IOException | IncorrectMessageException ex) {
-            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Occured error during initial registration" + ex);
             reconnect();
         }
     }
-
 
     public void start() {
         printStream.println(startInfoMessage);
@@ -75,12 +61,7 @@ public class ChatClientTerminal extends ChatClient {
 
     public void stop() {
         isStarted = false;
-        try {
-            connector.disconnect();
-        } catch (IOException ex) {
-            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Occured error on disconnecting server " + ex);
-        }
-
+        disconnect();
     }
 
 
