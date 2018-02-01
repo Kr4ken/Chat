@@ -5,17 +5,16 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import static java.util.Arrays.asList;
 
-public class ChatClient {
-    private String name;
+public class ChatClientController {
+
+    private String clientName;
     private ChatConnector connector;
     private ChatServer server;
 
@@ -26,7 +25,7 @@ public class ChatClient {
     private final String commandPatternString  = "^\\/\\w+\\ *(\\w+\\ *)*";
     private Pattern commandPattern;
 
-    public ChatClient(ChatServer server, ChatConnector connector) {
+    public ChatClientController(ChatServer server, ChatConnector connector) {
         isStarted = false;
         this.server = server;
         this.connector = connector;
@@ -44,7 +43,6 @@ public class ChatClient {
 
     private String getCommandFromMessage(String message){
         if(isCommand(message)){
-            //
             return message.split(" ")[0];
         }
         return null;
@@ -52,7 +50,6 @@ public class ChatClient {
 
     private List<String> getParamsFromMessage(String message){
         if(isCommand(message)){
-//            List<String> params =  Arrays.asList(message.split(" "));
             String[] params =  message.split(" ");
             params = Arrays.copyOfRange(params,1,params.length);
             return Arrays.asList(params);
@@ -64,7 +61,7 @@ public class ChatClient {
         while (isStarted) {
             try {
                 ChatMessage message = connector.readMessage();
-                System.out.println("ChatClient get new message " + message.getClient() + ":" + message.getMessage());
+                System.out.println("ChatClientController get new message " + message.getClient() + " : " + message.getMessage());
                 // If command then do without registration(
                 if(isCommand(message.getMessage())){
                     System.out.println("Message is command. Trying execute");
@@ -82,22 +79,22 @@ public class ChatClient {
                     }
                 }
             } catch (IOException | IncorrectMessageException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
+                Logger.getLogger(ChatClientController.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
                 stop();
             }
         }
     }
 
     private Boolean isAllowed(ChatMessage message){
-        return name != null &&  name.equals(message.getClient());
+        return clientName != null &&  clientName.equals(message.getClient());
     }
 
     public void sendMessage(ChatMessage message) {
         try {
-            System.out.println("Send message to " + name + " Message:" + message.getMessage());
+            System.out.println("Send message to " + clientName + " Message:" + message.getMessage());
             connector.sendMessage(message);
         } catch (IOException | IncorrectMessageException ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
+            Logger.getLogger(ChatClientController.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
         }
 
     }
@@ -123,12 +120,12 @@ public class ChatClient {
         }
     }
 
-    public String getName() {
-        return name;
+    public String getClientName() {
+        return clientName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 
     public ChatConnector getConnector() {

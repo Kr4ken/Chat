@@ -1,6 +1,6 @@
 package com.ezhov.commands;
 
-import com.ezhov.domain.ChatClient;
+import com.ezhov.domain.ChatClientController;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
 import com.ezhov.exceptions.IncorrectMessageException;
@@ -20,7 +20,7 @@ public class CloseCommand extends ChatCommand {
     }
 
     @Override
-    public void action(ChatClient client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
+    public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
         System.out.println("Execute close command");
         ChatMessage closeMessage = new ChatMessage(command,server.getSystemUserName());
         client.sendMessage(closeMessage);

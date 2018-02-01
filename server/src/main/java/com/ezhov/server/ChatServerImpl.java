@@ -5,7 +5,7 @@ import com.ezhov.connector.ChatConnector;
 import com.ezhov.connector.ChatListener;
 import com.ezhov.connector.ConnectorSettings;
 import com.ezhov.connector.SocketChatListener;
-import com.ezhov.domain.ChatClient;
+import com.ezhov.domain.ChatClientController;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
 import com.ezhov.exceptions.IncorrectMessageException;
@@ -24,7 +24,7 @@ public class ChatServerImpl implements ChatServer {
     ChatListener chatListener;
     ConnectorSettings settings;
     List<ChatMessage> messages;
-    List<ChatClient> clients;
+    List<ChatClientController> clients;
     List<ChatCommand> commands;
     final String name = "SYSTEM";
     final Integer lastMessageCount = 100;
@@ -43,7 +43,7 @@ public class ChatServerImpl implements ChatServer {
     }
 
     @Override
-    public List<ChatClient> getClients() {
+    public List<ChatClientController> getClients() {
         return clients;
     }
 
@@ -83,15 +83,15 @@ public class ChatServerImpl implements ChatServer {
     public synchronized void addMessage(ChatMessage chatMessage) {
         System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
-        for (ChatClient client: clients) {
+        for (ChatClientController client: clients) {
            //Don't send message to yourself
-            if(!client.getName().equals(chatMessage.getClient()))
+            if(!client.getClientName().equals(chatMessage.getClient()))
                 client.sendMessage(chatMessage);
         }
     }
 
     @Override
-    public void executeCommand(ChatClient client, String command, List<String> params) {
+    public void executeCommand(ChatClientController client, String command, List<String> params) {
         Optional<ChatCommand> chatCommand =  commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
         if(chatCommand.isPresent()){
             System.out.println("Command found execute ");
@@ -113,8 +113,8 @@ public class ChatServerImpl implements ChatServer {
         }
     }
 
-    public synchronized void addClient(ChatClient client){
-        System.out.println("Add new client in list :" + client.getName());
+    public synchronized void addClient(ChatClientController client){
+        System.out.println("Add new client in list :" + client.getClientName());
         clients.add(client);
     }
 
@@ -122,7 +122,7 @@ public class ChatServerImpl implements ChatServer {
         while (isStarted) {
             try {
                 ChatConnector connector = chatListener.waitClient();
-                ChatClient chatClient = new ChatClient(this,connector);
+                ChatClientController chatClient = new ChatClientController(this,connector);
                 addClient(chatClient);
                 chatClient.start();
             } catch (IOException ex) {

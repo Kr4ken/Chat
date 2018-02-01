@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class SocketChatListener extends ChatListener {
+public class SocketChatListener implements ChatListener {
 
     private ServerSocket server;
+    private ConnectorSettings settings;
 
     public SocketChatListener(ConnectorSettings settings){
-        super(settings);
+        this.settings = settings;
     }
 
     @Override
