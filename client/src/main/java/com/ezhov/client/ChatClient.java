@@ -35,7 +35,6 @@ public abstract class ChatClient {
 
     protected InputStream inputStream;
     protected PrintStream printStream;
-    protected OutputStream outputStream;
 
     protected abstract void initCommandsList();
 
@@ -63,7 +62,6 @@ public abstract class ChatClient {
             connector.disconnect();
             inputStream.close();
             printStream.close();
-            scanner.close();
         } catch (IOException ex) {
             Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
         }
@@ -104,14 +102,6 @@ public abstract class ChatClient {
         }
     }
 
-    protected void reconnect(){
-        printStream.println("Server connection error. Trying to reconnect? (y/n) ");
-        String answer =  new Scanner(inputStream).nextLine();
-        if(answer.equals("y")){
-            stop();
-            start();
-        }
-    }
 
     protected void readMessages() {
         while (isStarted) {
@@ -127,7 +117,6 @@ public abstract class ChatClient {
             } catch (IOException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error" + ex);
                 isStarted = false;
-                reconnect();
             }
         }
     }
@@ -145,7 +134,6 @@ public abstract class ChatClient {
             } catch (IOException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error" + ex);
                 isStarted = false;
-                reconnect();
             }
         }
 

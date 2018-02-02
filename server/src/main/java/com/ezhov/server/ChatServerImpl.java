@@ -18,16 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class ChatServerImpl implements ChatServer {
+public class ChatServerImpl extends ChatServer {
 
-    Boolean isStarted;
-    ChatListener chatListener;
-    ConnectorSettings settings;
-    List<ChatMessage> messages;
-    List<ChatClientController> clients;
-    List<ChatCommand> commands;
-    final String name = "SYSTEM";
-    final Integer lastMessageCount = 100;
 
     private void initCommands(){
         commands =  new LinkedList<>();
@@ -35,16 +27,6 @@ public class ChatServerImpl implements ChatServer {
         commands.add(new CountCommand());
         commands.add(new HelpChatCommand());
         commands.add(new CloseCommand());
-    }
-
-    @Override
-    public String getSystemUserName(){
-       return name;
-    }
-
-    @Override
-    public List<ChatClientController> getClients() {
-        return clients;
     }
 
     @Override
@@ -72,7 +54,7 @@ public class ChatServerImpl implements ChatServer {
 
     public ChatServerImpl() {
         System.out.println("Server constructor!");
-        settings = new ConnectorSettings(8989, "127.0.0.1");
+        settings = new ConnectorSettings(8989);
         chatListener = new SocketChatListener(settings);
         isStarted = false;
         messages = new LinkedList<>();

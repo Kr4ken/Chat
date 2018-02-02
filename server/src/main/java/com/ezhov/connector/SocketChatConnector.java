@@ -4,7 +4,6 @@ import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class SocketChatConnector implements ChatConnector {
@@ -12,7 +11,6 @@ public class SocketChatConnector implements ChatConnector {
     private Socket socket;
     private BufferedReader in;
     private BufferedWriter out;
-    private ServerSocket serverSocket;
 
     public SocketChatConnector(Socket socket){
         this.socket = socket;
