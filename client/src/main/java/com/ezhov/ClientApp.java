@@ -7,7 +7,7 @@ import com.ezhov.client.ClientSettings;
 import java.io.IOException;
 
 public class ClientApp {
-    public static void main(String args[]) throws IOException{
+    public static void main(String args[]) throws IOException {
         ChatClient client = new ChatClientTerminal(ClientSettings.getDefault());
         client.start();
     }

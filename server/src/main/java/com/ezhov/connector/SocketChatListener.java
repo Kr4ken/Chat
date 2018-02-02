@@ -9,7 +9,7 @@ public class SocketChatListener implements ChatListener {
     private ServerSocket server;
     private ConnectorSettings settings;
 
-    public SocketChatListener(ConnectorSettings settings){
+    public SocketChatListener(ConnectorSettings settings) {
         this.settings = settings;
     }
 
@@ -19,12 +19,12 @@ public class SocketChatListener implements ChatListener {
     }
 
     @Override
-    public void disconnect() throws IOException{
+    public void disconnect() throws IOException {
         server.close();
     }
 
     @Override
-    public ChatConnector waitClient() throws IOException  {
+    public ChatConnector waitClient() throws IOException {
         Socket client = server.accept();
         ChatConnector chatConnector = new SocketChatConnector(client);
         return chatConnector;

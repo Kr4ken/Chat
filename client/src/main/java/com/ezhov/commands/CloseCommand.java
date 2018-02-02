@@ -6,7 +6,7 @@ import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.util.List;
 
-public class CloseCommand extends ChatCommand{
+public class CloseCommand extends ChatCommand {
 
     public CloseCommand(ChatClient client) {
         super(client);
@@ -15,7 +15,7 @@ public class CloseCommand extends ChatCommand{
     }
 
     @Override
-    public void action(List<String> params) throws IncorrectCommandFormat,IncorrectMessageException {
+    public void action(List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
         client.stop();
         System.exit(0);
     }

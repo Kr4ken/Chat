@@ -13,13 +13,13 @@ public class SocketChatConnector implements ChatConnector {
     private BufferedWriter out;
     private ConnectorSettings settings;
 
-    public SocketChatConnector(ConnectorSettings settings){
+    public SocketChatConnector(ConnectorSettings settings) {
         this.settings = settings;
     }
 
     @Override
     public void connect() throws IOException {
-        socket = new Socket(settings.getHostName(),settings.getPortNumber());
+        socket = new Socket(settings.getHostName(), settings.getPortNumber());
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
@@ -32,19 +32,19 @@ public class SocketChatConnector implements ChatConnector {
     }
 
     @Override
-    public void sendMessage(ChatMessage message) throws IOException,IncorrectMessageException {
+    public void sendMessage(ChatMessage message) throws IOException, IncorrectMessageException {
         out.write(message.getFormatMessage() + "\n");
         out.flush();
     }
 
     @Override
-    public ChatMessage readMessage() throws IOException,IncorrectMessageException {
+    public ChatMessage readMessage() throws IOException, IncorrectMessageException {
         String formatMessage = in.readLine();
         return ChatMessage.fromFormatString(formatMessage);
     }
 
     @Override
     public Boolean checkStatus() {
-        return socket != null && socket.isConnected() && !socket.isClosed() ;
+        return socket != null && socket.isConnected() && !socket.isClosed();
     }
 }

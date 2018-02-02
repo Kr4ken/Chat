@@ -21,7 +21,7 @@ public class CountCommand extends ChatCommand {
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
         System.out.println("Execute count command");
-        ChatMessage countMessage = new ChatMessage(String.format("%d Clients in chat now",server.getClients().size()), server.getSystemUserName());
+        ChatMessage countMessage = new ChatMessage(String.format("%d Clients in chat now", server.getClients().size()), server.getSystemUserName());
         client.sendMessage(countMessage);
     }
 }

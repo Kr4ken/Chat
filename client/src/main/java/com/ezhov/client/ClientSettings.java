@@ -6,18 +6,19 @@ public class ClientSettings {
     private ConnectorSettings connectorSettings;
     private String name;
 
-    private ClientSettings(){}
-
-    public static ClientSettings getDefault(){
-        ClientSettings clientSettings = new ClientSettings();
-        clientSettings.connectorSettings = ConnectorSettings.getDefault();
-        clientSettings.name = "default";
-       return clientSettings;
+    private ClientSettings() {
     }
 
     public ClientSettings(ConnectorSettings connectorSettings, String name) {
         this.connectorSettings = connectorSettings;
         this.name = name;
+    }
+
+    public static ClientSettings getDefault() {
+        ClientSettings clientSettings = new ClientSettings();
+        clientSettings.connectorSettings = ConnectorSettings.getDefault();
+        clientSettings.name = "default";
+        return clientSettings;
     }
 
     public ConnectorSettings getConnectorSettings() {

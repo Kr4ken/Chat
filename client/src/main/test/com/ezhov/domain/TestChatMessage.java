@@ -61,8 +61,8 @@ public class TestChatMessage {
     @Test
     public void testNullEmpyFields() throws Exception {
         // Message
-        assertFalse(isMessageCorrect(null,"Kirill",time));
-        assertFalse(isMessageCorrect("","Kirill",time));
+        assertFalse(isMessageCorrect(null, "Kirill", time));
+        assertFalse(isMessageCorrect("", "Kirill", time));
         // Client
         assertFalse(isMessageCorrect("Hi", null, time));
         assertFalse(isMessageCorrect("Hi", "", time));
@@ -114,31 +114,31 @@ public class TestChatMessage {
     }
 
     @Test
-    public void correctParse() throws Exception{
+    public void correctParse() throws Exception {
         String message = "[12:35:32|Kraken] Hi there";
         ChatMessage mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("12:35:32",format),mess.getTime());
-        assertEquals("Hi there",mess.getMessage());
-        assertEquals("Kraken",mess.getClient());
+        assertEquals(LocalTime.parse("12:35:32", format), mess.getTime());
+        assertEquals("Hi there", mess.getMessage());
+        assertEquals("Kraken", mess.getClient());
 
         message = "[14:22:32|SYSTEM] Enter command /help";
         mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("14:22:32",format),mess.getTime());
-        assertEquals("Enter command /help",mess.getMessage());
-        assertEquals("SYSTEM",mess.getClient());
+        assertEquals(LocalTime.parse("14:22:32", format), mess.getTime());
+        assertEquals("Enter command /help", mess.getMessage());
+        assertEquals("SYSTEM", mess.getClient());
 
 
         message = "[14:22:12|fskhfkj] fff";
         mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("14:22:12",format),mess.getTime());
-        assertEquals("fff",mess.getMessage());
-        assertEquals("fskhfkj",mess.getClient());
+        assertEquals(LocalTime.parse("14:22:12", format), mess.getTime());
+        assertEquals("fff", mess.getMessage());
+        assertEquals("fskhfkj", mess.getClient());
 
         message = "[14:22:12|SYSTEM] [][][][|p[p{}";
         mess = ChatMessage.fromFormatString(message);
-        assertEquals(LocalTime.parse("14:22:12",format),mess.getTime());
-        assertEquals("[][][][|p[p{}",mess.getMessage());
-        assertEquals("SYSTEM",mess.getClient());
+        assertEquals(LocalTime.parse("14:22:12", format), mess.getTime());
+        assertEquals("[][][][|p[p{}", mess.getMessage());
+        assertEquals("SYSTEM", mess.getClient());
 
     }
 

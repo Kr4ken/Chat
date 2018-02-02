@@ -22,7 +22,7 @@ public class CloseCommand extends ChatCommand {
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
         System.out.println("Execute close command");
-        ChatMessage closeMessage = new ChatMessage(command,server.getSystemUserName());
+        ChatMessage closeMessage = new ChatMessage(command, server.getSystemUserName());
         client.sendMessage(closeMessage);
         client.stop();
         server.getClients().remove(client);

@@ -2,7 +2,6 @@ package com.ezhov.server;
 
 import com.ezhov.commands.*;
 import com.ezhov.connector.ChatConnector;
-import com.ezhov.connector.ChatListener;
 import com.ezhov.connector.ConnectorSettings;
 import com.ezhov.connector.SocketChatListener;
 import com.ezhov.domain.ChatClientController;
@@ -20,9 +19,26 @@ import java.util.stream.Collectors;
 
 public class ChatServerImpl extends ChatServer {
 
+    ChatServerSettings chatServerSettings;
 
-    private void initCommands(){
-        commands =  new LinkedList<>();
+    public ChatServerImpl(ChatServerSettings chatServerSettings) {
+        super();
+        this.chatServerSettings = chatServerSettings;
+        name = chatServerSettings.getSystemName();
+        lastMessageCount = chatServerSettings.getLastMessageCount();
+    }
+
+    public ChatServerImpl() {
+        System.out.println("Server constructor!");
+        settings = new ConnectorSettings(8989);
+        chatListener = new SocketChatListener(settings);
+        isStarted = false;
+        messages = new LinkedList<>();
+        clients = new LinkedList<>();
+    }
+
+    private void initCommands() {
+        commands = new LinkedList<>();
         commands.add(new RegisterChatCommand());
         commands.add(new CountCommand());
         commands.add(new HelpChatCommand());
@@ -31,12 +47,11 @@ public class ChatServerImpl extends ChatServer {
 
     @Override
     public void executeCommand(String command, List<String> params) {
-        Optional<ChatCommand> chatCommand =  commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
-        if(chatCommand.isPresent()){
+        Optional<ChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
+        if (chatCommand.isPresent()) {
             try {
                 chatCommand.get().action(params);
-            }
-            catch (IncorrectMessageException | IncorrectCommandFormat ex){
+            } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
 
             }
         }
@@ -52,35 +67,25 @@ public class ChatServerImpl extends ChatServer {
         return commands;
     }
 
-    public ChatServerImpl() {
-        System.out.println("Server constructor!");
-        settings = new ConnectorSettings(8989);
-        chatListener = new SocketChatListener(settings);
-        isStarted = false;
-        messages = new LinkedList<>();
-        clients = new LinkedList<>();
-    }
-
     @Override
     public synchronized void addMessage(ChatMessage chatMessage) {
         System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
-        for (ChatClientController client: clients) {
-           //Don't send message to yourself
-            if(!client.getClientName().equals(chatMessage.getClient()))
+        for (ChatClientController client : clients) {
+            //Don't send message to yourself
+            if (!client.getClientName().equals(chatMessage.getClient()))
                 client.sendMessage(chatMessage);
         }
     }
 
     @Override
     public void executeCommand(ChatClientController client, String command, List<String> params) {
-        Optional<ChatCommand> chatCommand =  commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
-        if(chatCommand.isPresent()){
+        Optional<ChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
+        if (chatCommand.isPresent()) {
             System.out.println("Command found execute ");
             try {
-                chatCommand.get().action(client,this,params);
-            }
-            catch (IncorrectMessageException | IncorrectCommandFormat ex){
+                chatCommand.get().action(client, this, params);
+            } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
 
             }
         }
@@ -89,13 +94,13 @@ public class ChatServerImpl extends ChatServer {
             try {
                 ChatMessage alertMessage = new ChatMessage("Command " + command + " not found", getSystemUserName());
                 client.sendMessage(alertMessage);
-            } catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
     }
 
-    public synchronized void addClient(ChatClientController client){
+    public synchronized void addClient(ChatClientController client) {
         System.out.println("Add new client in list :" + client.getClientName());
         clients.add(client);
     }
@@ -104,7 +109,7 @@ public class ChatServerImpl extends ChatServer {
         while (isStarted) {
             try {
                 ChatConnector connector = chatListener.waitClient();
-                ChatClientController chatClient = new ChatClientController(this,connector);
+                ChatClientController chatClient = new ChatClientController(this, connector);
                 addClient(chatClient);
                 chatClient.start();
             } catch (IOException ex) {
@@ -123,9 +128,9 @@ public class ChatServerImpl extends ChatServer {
         try {
             chatListener.connect();
             isStarted = true;
-            Thread listener = new Thread(){
+            Thread listener = new Thread() {
                 @Override
-                public void run(){
+                public void run() {
                     clientListen();
                 }
             };

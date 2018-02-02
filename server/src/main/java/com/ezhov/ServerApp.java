@@ -2,14 +2,11 @@ package com.ezhov;
 
 import com.ezhov.server.ChatServer;
 import com.ezhov.server.ChatServerImpl;
-
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import com.ezhov.server.ChatServerSettings;
 
 public class ServerApp {
     public static void main(String args[]) {
-        ChatServer server = new ChatServerImpl();
+        ChatServer server = new ChatServerImpl(ChatServerSettings.getDefault());
         server.run();
     }
 }

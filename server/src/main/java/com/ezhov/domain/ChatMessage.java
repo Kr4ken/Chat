@@ -18,22 +18,9 @@ public class ChatMessage {
     private DateTimeFormatter dateTimeFormatter;
     private Pattern messagePattern;
 
-    private void init(){
-        messagePattern = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\|\\w+\\] .+");
-        dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat);
-    }
-
-    private ChatMessage(){
+    private ChatMessage() {
         init();
     }
-
-
-    public static ChatMessage fromFormatString(String formatMessage) throws IncorrectMessageException{
-        ChatMessage result = new ChatMessage();
-        result.parseMessage(formatMessage);
-        return result;
-    }
-
 
     public ChatMessage(String message, String client, LocalTime time) throws IncorrectMessageException {
         if (client == null || client.equals("") || time == null || message == null || message.equals(""))
@@ -44,22 +31,34 @@ public class ChatMessage {
         init();
     }
 
+
     public ChatMessage(String message, String client) throws IncorrectMessageException {
         // Set precision for seconds
-        this(message, client,LocalTime.now().withNano(0));
+        this(message, client, LocalTime.now().withNano(0));
+    }
+
+    public static ChatMessage fromFormatString(String formatMessage) throws IncorrectMessageException {
+        ChatMessage result = new ChatMessage();
+        result.parseMessage(formatMessage);
+        return result;
+    }
+
+    private void init() {
+        messagePattern = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\|\\w+\\] .+");
+        dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat);
     }
 
     public void parseMessage(String formatMessage) throws IncorrectMessageException {
-        if(formatMessage == null || formatMessage.equals(""))
+        if (formatMessage == null || formatMessage.equals(""))
             throw new IncorrectMessageException("Error. Null message for format: " + formatMessage);
         Matcher matcher = messagePattern.matcher(formatMessage);
 
-        if(matcher.matches()){
+        if (matcher.matches()) {
             Integer dateStart = formatMessage.indexOf("[") + 1;
             Integer dateEnd = formatMessage.indexOf("|");
             Integer nameStart = formatMessage.indexOf("|") + 1;
             Integer nameEnd = formatMessage.indexOf("]");
-            this.message = formatMessage.substring(nameEnd+2);
+            this.message = formatMessage.substring(nameEnd + 2);
             this.client = formatMessage.substring(nameStart, nameEnd);
             String timeString = formatMessage.substring(dateStart, dateEnd);
             try {
@@ -68,19 +67,19 @@ public class ChatMessage {
                 throw new IncorrectMessageException(formatMessage + " : " + dpe.getLocalizedMessage());
             }
 
-        }
-        else {
+        } else {
             throw new IncorrectMessageException("Error. Incorrect message format: " + formatMessage);
         }
 
 
     }
+
     @Override
-    public boolean equals(Object other){
+    public boolean equals(Object other) {
         if (other == null) return false;
         if (other == this) return true;
-        if (!(other instanceof ChatMessage))return false;
-        ChatMessage otherChatMessage = (ChatMessage)other;
+        if (!(other instanceof ChatMessage)) return false;
+        ChatMessage otherChatMessage = (ChatMessage) other;
         return client.equals(otherChatMessage.client) && message.equals(otherChatMessage.message) && time.equals(otherChatMessage.time);
     }
 

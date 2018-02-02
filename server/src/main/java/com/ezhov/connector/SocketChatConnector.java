@@ -12,7 +12,7 @@ public class SocketChatConnector implements ChatConnector {
     private BufferedReader in;
     private BufferedWriter out;
 
-    public SocketChatConnector(Socket socket){
+    public SocketChatConnector(Socket socket) {
         this.socket = socket;
     }
 
@@ -30,20 +30,20 @@ public class SocketChatConnector implements ChatConnector {
     }
 
     @Override
-    public void sendMessage(ChatMessage message) throws IOException,IncorrectMessageException {
+    public void sendMessage(ChatMessage message) throws IOException, IncorrectMessageException {
         out.write(message.getFormatMessage() + "\n");
         out.flush();
     }
 
     @Override
-    public ChatMessage readMessage() throws IOException,IncorrectMessageException {
+    public ChatMessage readMessage() throws IOException, IncorrectMessageException {
         String formatMessage = in.readLine();
         return ChatMessage.fromFormatString(formatMessage);
     }
 
     @Override
     public Boolean checkStatus() {
-        return socket != null && socket.isConnected() && !socket.isClosed() ;
+        return socket != null && socket.isConnected() && !socket.isClosed();
     }
 }
 

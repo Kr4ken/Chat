@@ -14,15 +14,12 @@ import java.util.regex.Pattern;
 
 public class ChatClientController {
 
+    private final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     private String clientName;
     private ChatConnector connector;
     private ChatServer server;
-
     private Boolean isStarted;
-
     private Thread readerThread;
-
-    private final String commandPatternString  = "^\\/\\w+\\ *(\\w+\\ *)*";
     private Pattern commandPattern;
 
     public ChatClientController(ChatServer server, ChatConnector connector) {
@@ -37,21 +34,21 @@ public class ChatClientController {
         commandPattern = Pattern.compile(commandPatternString);
     }
 
-    private Boolean isCommand(String message){
+    private Boolean isCommand(String message) {
         return commandPattern.matcher(message).matches();
     }
 
-    private String getCommandFromMessage(String message){
-        if(isCommand(message)){
+    private String getCommandFromMessage(String message) {
+        if (isCommand(message)) {
             return message.split(" ")[0];
         }
         return null;
     }
 
-    private List<String> getParamsFromMessage(String message){
-        if(isCommand(message)){
-            String[] params =  message.split(" ");
-            params = Arrays.copyOfRange(params,1,params.length);
+    private List<String> getParamsFromMessage(String message) {
+        if (isCommand(message)) {
+            String[] params = message.split(" ");
+            params = Arrays.copyOfRange(params, 1, params.length);
             return Arrays.asList(params);
         }
         return null;
@@ -63,11 +60,10 @@ public class ChatClientController {
                 ChatMessage message = connector.readMessage();
                 System.out.println("ChatClientController get new message " + message.getClient() + " : " + message.getMessage());
                 // If command then do without registration(
-                if(isCommand(message.getMessage())){
+                if (isCommand(message.getMessage())) {
                     System.out.println("Message is command. Trying execute");
-                    server.executeCommand(this,getCommandFromMessage(message.getMessage()), getParamsFromMessage(message.getMessage()));
-                }
-                else {
+                    server.executeCommand(this, getCommandFromMessage(message.getMessage()), getParamsFromMessage(message.getMessage()));
+                } else {
                     // If user registred
                     if (isAllowed(message)) {
                         System.out.println("User register. All Ok");
@@ -85,8 +81,8 @@ public class ChatClientController {
         }
     }
 
-    private Boolean isAllowed(ChatMessage message){
-        return clientName != null &&  clientName.equals(message.getClient());
+    private Boolean isAllowed(ChatMessage message) {
+        return clientName != null && clientName.equals(message.getClient());
     }
 
     public void sendMessage(ChatMessage message) {

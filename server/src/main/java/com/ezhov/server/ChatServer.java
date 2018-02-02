@@ -17,18 +17,24 @@ public abstract class ChatServer {
     protected List<ChatClientController> clients;
     protected List<ChatCommand> commands;
 
-    protected final String name = "SYSTEM";
-    protected final Integer lastMessageCount = 100;
+    protected String name;
+    protected Integer lastMessageCount;
 
     abstract public void run();
-    abstract public void stop();
-    abstract public void addMessage(ChatMessage chatMessage);
-    abstract public List<ChatMessage> getLastMessages();
-    abstract public List<ChatCommand> getCommands();
-    abstract public void executeCommand(String command,List<String> params);
-    abstract public void executeCommand(ChatClientController client, String command,List<String> params);
 
-    public String getSystemUserName(){
+    abstract public void stop();
+
+    abstract public void addMessage(ChatMessage chatMessage);
+
+    abstract public List<ChatMessage> getLastMessages();
+
+    abstract public List<ChatCommand> getCommands();
+
+    abstract public void executeCommand(String command, List<String> params);
+
+    abstract public void executeCommand(ChatClientController client, String command, List<String> params);
+
+    public String getSystemUserName() {
         return name;
     }
 
@@ -54,5 +60,9 @@ public abstract class ChatServer {
 
     public void setSettings(ConnectorSettings settings) {
         this.settings = settings;
+    }
+
+    public Boolean getStarted() {
+        return isStarted;
     }
 }

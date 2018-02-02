@@ -9,7 +9,6 @@ import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.logging.Level;
@@ -17,6 +16,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public abstract class ChatClient {
+    protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     protected ChatConnector connector;
     protected List<ChatMessage> messages;
     protected List<ChatCommand> commands;
@@ -24,32 +24,36 @@ public abstract class ChatClient {
     protected Boolean isStarted;
     protected String name;
     protected Scanner scanner;
-
     protected Thread readerThread;
     protected Thread writerThread;
-
     protected ConnectorSettings connectorSettings;
-
-    protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     protected Pattern commandPattern;
 
     protected InputStream inputStream;
     protected PrintStream printStream;
-
-    protected abstract void initCommandsList();
 
     public ChatClient() {
         initCommandsList();
         commandPattern = Pattern.compile(commandPatternString);
         messages = new LinkedList<>();
         isStarted = false;
-        readerThread = new Thread() { public void run() { readMessages(); } };
-        writerThread = new Thread() { public void run() { writeMessages(); } };
+        readerThread = new Thread() {
+            public void run() {
+                readMessages();
+            }
+        };
+        writerThread = new Thread() {
+            public void run() {
+                writeMessages();
+            }
+        };
     }
+
+    protected abstract void initCommandsList();
 
     public void connect() {
         try {
-            if(!connector.checkStatus()) {
+            if (!connector.checkStatus()) {
                 connector.connect();
             }
         } catch (IOException ex) {
