@@ -57,7 +57,7 @@ public abstract class ChatClient {
                 connector.connect();
             }
         } catch (IOException ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during established server connection\n" + ex);
         }
     }
 
@@ -67,22 +67,22 @@ public abstract class ChatClient {
             inputStream.close();
             printStream.close();
         } catch (IOException ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during server disconnection\n" + ex);
         }
     }
 
-    private Boolean isCommand(String message) {
+    protected Boolean isCommand(String message) {
         return commandPattern.matcher(message).matches();
     }
 
-    private String getCommandFromMessage(String message) {
+    protected String getCommandFromMessage(String message) {
         if (isCommand(message)) {
             return message.split(" ")[0];
         }
         return null;
     }
 
-    private List<String> getParamsFromMessage(String message) {
+    protected List<String> getParamsFromMessage(String message) {
         if (isCommand(message)) {
             String[] params = message.split(" ");
             params = Arrays.copyOfRange(params, 1, params.length);
@@ -91,7 +91,7 @@ public abstract class ChatClient {
         return null;
     }
 
-    private void executeCommand(String commandString) {
+    protected void executeCommand(String commandString) {
         String command = getCommandFromMessage(commandString);
         List<String> params = getParamsFromMessage(commandString);
         Optional<ChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
@@ -99,10 +99,10 @@ public abstract class ChatClient {
             try {
                 chatCommand.get().action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage());
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE,"Error when commmand execution\n" + ex);
             }
         } else {
-            printStream.println(String.format("Command %s not found", command));
+            Logger.getLogger(ChatClient.class.getName()).log(Level.WARNING,String.format("Command %s not found\n", command));
         }
     }
 
@@ -117,10 +117,10 @@ public abstract class ChatClient {
                 messages.add(mess);
                 printStream.println(mess.getFormatMessage());
             } catch (IncorrectMessageException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message " + ex);
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during read server message\n" + ex);
             } catch (IOException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error" + ex);
-                isStarted = false;
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error\n" + ex);
+                stop();
             }
         }
     }
@@ -134,10 +134,10 @@ public abstract class ChatClient {
                 connector.sendMessage(mess);
                 currentMessage = null;
             } catch (IncorrectMessageException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Occured error during read server message " + ex);
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during send message to server\n" + ex);
             } catch (IOException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error" + ex);
-                isStarted = false;
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error\n" + ex);
+                stop();
             }
         }
 

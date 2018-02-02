@@ -40,12 +40,13 @@ public class ChatClientTerminal extends ChatClient {
         super.connect();
         try {
             // First connnect
+            // Register
             if (name != null || !name.equals("")) {
                 ChatMessage registerMessage = new ChatMessage("/register " + name, name);
                 connector.sendMessage(registerMessage);
             }
         } catch (IOException | IncorrectMessageException ex) {
-            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Occured error during initial registration" + ex);
+            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Error during initial registration\n" + ex);
         }
     }
 

@@ -87,8 +87,11 @@ public class ChatClientController {
 
     public void sendMessage(ChatMessage message) {
         try {
-            System.out.println("Send message to " + clientName + " Message:" + message.getMessage());
-            connector.sendMessage(message);
+            // Check client auth
+            if(clientName!= null || message.getClient().equals(server.getSystemUserName())){
+                System.out.println("Send message to " + clientName + " Message:" + message.getMessage());
+                connector.sendMessage(message);
+            }
         } catch (IOException | IncorrectMessageException ex) {
             Logger.getLogger(ChatClientController.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
         }

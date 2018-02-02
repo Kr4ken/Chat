@@ -15,7 +15,8 @@ public class RegisterChatCommand extends ChatCommand {
     }
 
     private Boolean isValidName(ChatServer server, String name) {
-        Boolean nameExist = server.getClients().stream().anyMatch(chatClient -> name.equals(chatClient.getClientName()));
+        List<ChatClientController> clients = server.getClients();
+        Boolean nameExist = clients.stream().anyMatch(chatClient -> name.equals(chatClient.getClientName()));
         Boolean systemEquals = name.equals(server.getSystemUserName());
         return !systemEquals && !nameExist;
     }

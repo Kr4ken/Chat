@@ -25,6 +25,6 @@ public class CloseCommand extends ChatCommand {
         ChatMessage closeMessage = new ChatMessage(command, server.getSystemUserName());
         client.sendMessage(closeMessage);
         client.stop();
-        server.getClients().remove(client);
+        server.removeClient(client);
     }
 }

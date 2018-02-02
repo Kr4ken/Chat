@@ -26,6 +26,10 @@ public abstract class ChatServer {
 
     abstract public void addMessage(ChatMessage chatMessage);
 
+    abstract public void removeClient(ChatClientController client);
+
+    abstract public void addClient(ChatClientController client);
+
     abstract public List<ChatMessage> getLastMessages();
 
     abstract public List<ChatCommand> getCommands();

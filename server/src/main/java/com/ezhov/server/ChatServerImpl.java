@@ -23,18 +23,15 @@ public class ChatServerImpl extends ChatServer {
 
     public ChatServerImpl(ChatServerSettings chatServerSettings) {
         super();
-        this.chatServerSettings = chatServerSettings;
-        name = chatServerSettings.getSystemName();
-        lastMessageCount = chatServerSettings.getLastMessageCount();
-    }
-
-    public ChatServerImpl() {
         System.out.println("Server constructor!");
         settings = new ConnectorSettings(8989);
         chatListener = new SocketChatListener(settings);
         isStarted = false;
         messages = new LinkedList<>();
         clients = new LinkedList<>();
+        this.chatServerSettings = chatServerSettings;
+        name = chatServerSettings.getSystemName();
+        lastMessageCount = chatServerSettings.getLastMessageCount();
     }
 
     private void initCommands() {
@@ -78,6 +75,8 @@ public class ChatServerImpl extends ChatServer {
         }
     }
 
+
+
     @Override
     public void executeCommand(ChatClientController client, String command, List<String> params) {
         Optional<ChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
@@ -103,6 +102,11 @@ public class ChatServerImpl extends ChatServer {
     public synchronized void addClient(ChatClientController client) {
         System.out.println("Add new client in list :" + client.getClientName());
         clients.add(client);
+    }
+
+    public synchronized void removeClient(ChatClientController client) {
+        System.out.println("Remove client from client list :" + client.getClientName());
+        clients.remove(client);
     }
 
     private void clientListen() {
