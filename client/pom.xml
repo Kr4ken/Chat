@@ -8,7 +8,6 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <junit.version>4.12</junit.version>
-        <laterna.version>3.0.0</laterna.version>
     </properties>
     <dependencies>
         <dependency>
@@ -17,29 +16,35 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--Library for console output-->
-        <dependency>
-            <groupId>com.googlecode.lanterna</groupId>
-            <artifactId>lanterna</artifactId>
-            <version>${laterna.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
         <finalName>ChatClient</finalName>
+        <directory>${basedir}/../target/</directory>
+        <outputDirectory>${basedir}/../target/client/classes</outputDirectory>
         <plugins>
+            <!-- Maven Shade Plugin -->
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.ezhov.ClientApp</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <!-- Run shade goal on package phase -->
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <!-- add Main-Class to manifest file -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.ezhov.ClientApp</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Set a JDK compiler level -->
             <plugin>
@@ -52,23 +57,33 @@
                 </configuration>
             </plugin>
 
+            <!--<plugin>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<archive>-->
+                        <!--<manifest>-->
+                            <!--<mainClass>com.ezhov.ClientApp</mainClass>-->
+                        <!--</manifest>-->
+                    <!--</archive>-->
+                    <!--<descriptorRefs>-->
+                        <!--<descriptorRef>jar-with-dependencies</descriptorRef>-->
+                    <!--</descriptorRefs>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+
             <!-- Make this jar executable -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <!-- DO NOT include log4j.properties file in your Jar -->
-                    <!--<excludes>-->
-                        <!--<exclude>**/log4j.properties</exclude>-->
-                    <!--</excludes>-->
-                    <archive>
-                        <manifest>
-                            <!-- Jar file entry point -->
-                            <mainClass>com.ezhov.ClientApp</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<archive>-->
+                        <!--<manifest>-->
+                            <!--&lt;!&ndash; Jar file entry point &ndash;&gt;-->
+                            <!--<mainClass>com.ezhov.ClientApp</mainClass>-->
+                        <!--</manifest>-->
+                    <!--</archive>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
 
         </plugins>
     </build>

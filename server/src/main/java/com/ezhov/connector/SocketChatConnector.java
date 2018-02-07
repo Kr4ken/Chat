@@ -43,7 +43,7 @@ public class SocketChatConnector implements ChatConnector {
 
     @Override
     public Boolean checkStatus() {
-        return socket != null && socket.isConnected() && !socket.isClosed();
+        return socket != null && socket.isConnected() && !socket.isClosed() && in!=null && out!= null;
     }
 }
 

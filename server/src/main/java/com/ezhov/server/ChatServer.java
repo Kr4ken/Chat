@@ -5,7 +5,7 @@ import com.ezhov.connector.ChatConnector;
 import com.ezhov.connector.ChatListener;
 import com.ezhov.connector.ConnectorSettings;
 import com.ezhov.connector.SocketChatListener;
-import com.ezhov.domain.ChatClientController;
+import com.ezhov.controller.ChatClientController;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
 import com.ezhov.exceptions.IncorrectMessageException;
@@ -55,29 +55,43 @@ public class ChatServer {
         System.out.println("Server start");
         initCommands();
         try {
-            chatListener.connect();
+            chatListener.start();
             isStarted = true;
             Thread listener = new Thread(this::clientListen);
             listener.start();
             System.out.println("Listener start");
         } catch (IOException ex) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+            stop();
         }
     }
 
     public void stop() {
         isStarted = false;
+        try {
+            chatListener.stop();
+        }catch (IOException ex){
+
+        }
         System.out.println("Server stop");
     }
+
+//    private void clearMessages(){
+//       if(messages.size()> chatServerSettings.getMaxMessages())
+//           messages.remove()
+//    }
 
     public synchronized void addMessage(ChatMessage chatMessage) {
         System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
-        for (ChatClientController client : clients) {
-            //Don't send message to yourself
-            if (!client.getClientName().equals(chatMessage.getClient()))
-                client.sendMessage(chatMessage);
-        }
+        clients.stream()
+                .filter(client -> client.getClientName() != null && !client.getClientName().equals(chatMessage.getClient()) )
+                .forEach(client -> client.sendMessage(chatMessage));
+//        for (ChatClientController client : clients) {
+//            //Don't send message to yourself
+//            if (!client.getClientName().equals(chatMessage.getClient()))
+//                client.sendMessage(chatMessage);
+//        }
     }
 
     public synchronized void removeClient(ChatClientController client) {
@@ -112,15 +126,13 @@ public class ChatServer {
     protected void clientListen() {
         while (isStarted) {
             try {
-                ChatConnector connector = chatListener.waitClient();
+                ChatConnector connector = chatListener.getClient();
                 ChatClientController chatClient = new ChatClientController(this, connector);
                 addClient(chatClient);
                 chatClient.start();
             } catch (IOException ex) {
                 Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
             }
-
-
         }
     }
 

@@ -1,6 +1,6 @@
 package com.ezhov.commands;
 
-import com.ezhov.domain.ChatClientController;
+import com.ezhov.controller.ChatClientController;
 import com.ezhov.exceptions.IncorrectCommandFormat;
 import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;

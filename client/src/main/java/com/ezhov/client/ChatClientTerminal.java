@@ -57,4 +57,16 @@ public class ChatClientTerminal extends ChatClient {
         printStream.println(startInfoMessage);
         super.start();
     }
+
+    @Override
+    public  void stop(){
+        try {
+            // Disconnect
+                ChatMessage registerMessage = new ChatMessage("/close", name);
+                connector.sendMessage(registerMessage);
+        } catch (IOException | IncorrectMessageException ex) {
+            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Error during disconnect\n" + ex);
+        }
+        super.stop();
+    }
 }

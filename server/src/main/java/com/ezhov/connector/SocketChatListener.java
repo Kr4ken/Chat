@@ -14,19 +14,26 @@ public class SocketChatListener implements ChatListener {
     }
 
     @Override
-    public void connect() throws IOException {
-        server = new ServerSocket(settings.getPortNumber());
+    public void start() throws IOException {
+        if(!checkStatus())
+            server = new ServerSocket(settings.getPortNumber());
     }
 
     @Override
-    public void disconnect() throws IOException {
-        server.close();
+    public void stop() throws IOException {
+        if(checkStatus())
+            server.close();
     }
 
     @Override
-    public ChatConnector waitClient() throws IOException {
+    public ChatConnector getClient() throws IOException {
         Socket client = server.accept();
         ChatConnector chatConnector = new SocketChatConnector(client);
         return chatConnector;
+    }
+
+    @Override
+    public Boolean checkStatus() {
+        return server != null && !server.isClosed();
     }
 }

@@ -6,6 +6,7 @@ public class ChatServerSettings {
     private ConnectorSettings connectorSettings;
     private String systemName;
     private Integer lastMessageCount;
+    private Integer maxMessages;
 
     private ChatServerSettings() {
     }
@@ -23,6 +24,7 @@ public class ChatServerSettings {
         result.connectorSettings = ConnectorSettings.getDefault();
         result.systemName = "SYSTEM";
         result.lastMessageCount = 100;
+        result.maxMessages = 1000;
         return result;
     }
 
@@ -48,5 +50,13 @@ public class ChatServerSettings {
 
     public void setLastMessageCount(Integer lastMessageCount) {
         this.lastMessageCount = lastMessageCount;
+    }
+
+    public Integer getMaxMessages() {
+        return maxMessages;
+    }
+
+    public void setMaxMessages(Integer maxMessages) {
+        this.maxMessages = maxMessages;
     }
 }

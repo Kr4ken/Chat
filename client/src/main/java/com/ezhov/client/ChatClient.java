@@ -37,9 +37,19 @@ public class ChatClient {
         commandPattern = Pattern.compile(commandPatternString);
         messages = new LinkedList<>();
         isStarted = false;
-        readerThread = new Thread(this::readMessages);
-        writerThread = new Thread(this::writeMessages);
+        initThreads();
         initCommandsList();
+    }
+
+    protected void  initThreads(){
+        if(!isStarted) {
+            readerThread = new Thread(this::readMessages);
+            writerThread = new Thread(this::writeMessages);
+        }
+        else {
+            stop();
+            initThreads();
+        }
     }
 
     protected void initCommandsList() {
@@ -59,6 +69,7 @@ public class ChatClient {
     public void disconnect() {
         try {
             connector.disconnect();
+            scanner.close();
             inputStream.close();
             printStream.close();
         } catch (IOException ex) {
@@ -114,7 +125,7 @@ public class ChatClient {
             } catch (IncorrectMessageException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during read server message\n" + ex);
             } catch (IOException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error\n" + ex);
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Read/Write message error\n" + ex);
                 stop();
             }
         }
@@ -123,15 +134,17 @@ public class ChatClient {
     protected void writeMessages() {
         while (isStarted) {
             try {
+                if(scanner.hasNextLine()) {
                 currentMessage = scanner.nextLine();
                 // Add endline symbol in the end
                 ChatMessage mess = new ChatMessage(currentMessage, name);
                 connector.sendMessage(mess);
                 currentMessage = null;
+                }
             } catch (IncorrectMessageException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during send message to server\n" + ex);
             } catch (IOException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Server connection error\n" + ex);
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Read/Write message error\n" + ex);
                 stop();
             }
         }
@@ -165,7 +178,11 @@ public class ChatClient {
 
     public void setInputStream(InputStream inputStream) {
         this.inputStream = inputStream;
+        if(scanner!= null){
+           scanner.close();
+        }
         scanner = new Scanner(inputStream);
+        initThreads();
     }
 
     public PrintStream getPrintStream() {
@@ -174,5 +191,6 @@ public class ChatClient {
 
     public void setPrintStream(PrintStream printStream) {
         this.printStream = printStream;
+        initThreads();
     }
 }

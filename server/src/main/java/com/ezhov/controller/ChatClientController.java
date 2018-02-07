@@ -1,6 +1,7 @@
-package com.ezhov.domain;
+package com.ezhov.controller;
 
 import com.ezhov.connector.ChatConnector;
+import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
@@ -26,11 +27,7 @@ public class ChatClientController {
         isStarted = false;
         this.server = server;
         this.connector = connector;
-        readerThread = new Thread() {
-            public void run() {
-                readMessage();
-            }
-        };
+        readerThread = new Thread(this::readMessage);
         commandPattern = Pattern.compile(commandPatternString);
     }
 
@@ -88,7 +85,7 @@ public class ChatClientController {
     public void sendMessage(ChatMessage message) {
         try {
             // Check client auth
-            if(clientName!= null || message.getClient().equals(server.getSystemUserName())){
+            if (clientName != null || message.getClient().equals(server.getSystemUserName())) {
                 System.out.println("Send message to " + clientName + " Message:" + message.getMessage());
                 connector.sendMessage(message);
             }
@@ -112,7 +109,7 @@ public class ChatClientController {
     public void stop() {
         isStarted = false;
         System.out.println("Client reader stop");
-        server.getClients().remove(this);
+        server.removeClient(this);
         try {
             connector.disconnect();
         } catch (IOException ex) {
