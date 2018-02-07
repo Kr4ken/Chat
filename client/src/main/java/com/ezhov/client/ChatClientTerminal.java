@@ -30,12 +30,14 @@ public class ChatClientTerminal extends ChatClient {
         startInfoMessage = "Welcome to chat.\nTo start chatting type \"/register <Nickname>\" to registration, and continue conversation.\nTo end chatting write \"/close\"\n";
     }
 
+    @Override
     protected void initCommandsList() {
-        commands = new LinkedList<>();
+        super.initCommandsList();
         commands.add(new RegisterChatCommand(this));
         commands.add(new CloseCommand(this));
     }
 
+    @Override
     public void connect() {
         super.connect();
         try {
@@ -50,18 +52,9 @@ public class ChatClientTerminal extends ChatClient {
         }
     }
 
+    @Override
     public void start() {
         printStream.println(startInfoMessage);
-        isStarted = true;
-        connect();
-        readerThread.start();
-        writerThread.start();
+        super.start();
     }
-
-    public void stop() {
-        isStarted = false;
-        disconnect();
-    }
-
-
 }

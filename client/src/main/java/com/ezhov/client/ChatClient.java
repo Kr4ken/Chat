@@ -15,7 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-public abstract class ChatClient {
+public class ChatClient {
     protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     protected ChatConnector connector;
     protected List<ChatMessage> messages;
@@ -33,23 +33,18 @@ public abstract class ChatClient {
     protected PrintStream printStream;
 
     public ChatClient() {
-        initCommandsList();
+        commands = new LinkedList<>();
         commandPattern = Pattern.compile(commandPatternString);
         messages = new LinkedList<>();
         isStarted = false;
-        readerThread = new Thread() {
-            public void run() {
-                readMessages();
-            }
-        };
-        writerThread = new Thread() {
-            public void run() {
-                writeMessages();
-            }
-        };
+        readerThread = new Thread(this::readMessages);
+        writerThread = new Thread(this::writeMessages);
+        initCommandsList();
     }
 
-    protected abstract void initCommandsList();
+    protected void initCommandsList() {
+
+    }
 
     public void connect() {
         try {
@@ -99,10 +94,10 @@ public abstract class ChatClient {
             try {
                 chatCommand.get().action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE,"Error when commmand execution\n" + ex);
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error when commmand execution\n" + ex);
             }
         } else {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.WARNING,String.format("Command %s not found\n", command));
+            Logger.getLogger(ChatClient.class.getName()).log(Level.WARNING, String.format("Command %s not found\n", command));
         }
     }
 
@@ -143,9 +138,18 @@ public abstract class ChatClient {
 
     }
 
-    public abstract void start();
+    public void start() {
+        isStarted = true;
+        connect();
+        readerThread.start();
+        writerThread.start();
 
-    public abstract void stop();
+    }
+
+    public void stop() {
+        isStarted = false;
+        disconnect();
+    }
 
     public String getName() {
         return name;

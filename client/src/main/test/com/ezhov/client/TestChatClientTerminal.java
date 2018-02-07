@@ -31,7 +31,7 @@ public class TestChatClientTerminal {
 
     @After
     public void aferEachTest() {
-        clientTerminal.stop();
+//        clientTerminal.stop();
     }
 
     @Test
@@ -40,11 +40,13 @@ public class TestChatClientTerminal {
         ChatMessage registerMessage = server.readMessage();
         assertEquals("/register " + settings.getName(),registerMessage.getMessage());
         assertEquals(settings.getName(),registerMessage.getClient());
+        clientTerminal.stop();
     }
 
 
     @Test
     public void messageTest() throws IncorrectMessageException {
+        clientTerminal.start();
         LinkedList<ChatMessage> messages = new LinkedList<>();
         for (Integer i = 0; i <= 100; i++) {
             ChatMessage message = new ChatMessage(String.format("%d message",i),"SYSTEM");
@@ -52,5 +54,6 @@ public class TestChatClientTerminal {
             server.sendMessage(message);
         }
         assertTrue(true);
+        clientTerminal.stop();
     }
 }
