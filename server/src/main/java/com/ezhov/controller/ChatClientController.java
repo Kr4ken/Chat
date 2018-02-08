@@ -90,7 +90,7 @@ public class ChatClientController {
                 connector.sendMessage(message);
             }
         } catch (IOException | IncorrectMessageException ex) {
-            Logger.getLogger(ChatClientController.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
+            Logger.getLogger(ChatClientController.class.getName()).log(Level.SEVERE, "Occured error during send server message" + ex);
         }
 
     }

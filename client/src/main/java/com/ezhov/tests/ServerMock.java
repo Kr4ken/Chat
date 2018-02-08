@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+// For tests
 public class ServerMock {
 
     private Socket server;
@@ -15,9 +16,7 @@ public class ServerMock {
     public ServerMock(Integer portNumber) {
         try {
             ServerSocket serverSocket = new ServerSocket(portNumber);
-            Thread serverThread = new Thread() {
-                @Override
-                public void run() {
+            Thread serverThread = new Thread(() -> {
                     try {
                         server = serverSocket.accept();
                         System.out.println("Client accepted");
@@ -29,11 +28,10 @@ public class ServerMock {
                         try {
                             serverSocket.close();
                         } catch (Exception e) {
+                           System.out.println("Error in closing server");
                         }
-
                     }
-                }
-            };
+                });
             serverThread.start();
         } catch (IOException ex) {
 

@@ -42,7 +42,7 @@ public class ClientLoadApp {
             }).start();
             return is;
         } catch (IOException ex) {
-
+            Logger.getLogger(ClientLoadApp.class.getName()).log(Level.WARNING, String.format("Error stream create for " + clientName + "\n" + ex));
         }
         return null;
     }
@@ -61,8 +61,8 @@ public class ClientLoadApp {
 
     }
 
+    // Args <outputPath> <clientCount> <delay> <spamCount>
     public static void main(String args[]) throws IOException {
-        // Args <outputPath> <clientCount> <delay> <spamCount>
         if (args.length > 0) {
             outputFilesPath = args[0];
         }

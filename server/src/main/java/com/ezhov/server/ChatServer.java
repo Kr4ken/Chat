@@ -70,8 +70,8 @@ public class ChatServer {
         isStarted = false;
         try {
             chatListener.stop();
-        }catch (IOException ex){
-
+        } catch (IOException ex) {
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error wheh trying stop listener " + ex);
         }
         System.out.println("Server stop");
     }
@@ -80,7 +80,8 @@ public class ChatServer {
         System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
         clients.stream()
-                .filter(client -> client.getClientName() != null && !client.getClientName().equals(chatMessage.getClient()) )
+                // Don't send not registred user and sender
+                .filter(client -> client.getClientName() != null && !client.getClientName().equals(chatMessage.getClient()))
                 .forEach(client -> client.sendMessage(chatMessage));
     }
 
@@ -108,7 +109,7 @@ public class ChatServer {
             try {
                 chatCommand.get().action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-
+                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error executing command. " + ex);
             }
         }
     }
@@ -133,7 +134,7 @@ public class ChatServer {
             try {
                 chatCommand.get().action(client, this, params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-
+                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error executing command. " + ex);
             }
         }
         // Command not found
@@ -142,7 +143,7 @@ public class ChatServer {
                 ChatMessage alertMessage = new ChatMessage("Command " + command + " not found", getSystemUserName());
                 client.sendMessage(alertMessage);
             } catch (Exception e) {
-
+                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error send message to Client" + e);
             }
         }
     }
