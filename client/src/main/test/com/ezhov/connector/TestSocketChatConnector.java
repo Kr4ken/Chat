@@ -2,7 +2,6 @@ package com.ezhov.connector;
 
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
-import com.ezhov.tests.ServerMock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,6 +16,65 @@ public class TestSocketChatConnector {
     private static final String hostName = "127.0.0.1";
     private static final ConnectorSettings settings = new ConnectorSettings(portNumber, hostName);
     private static ServerMock server;
+
+    public class ServerMock {
+
+        private Socket server;
+        private BufferedReader in;
+        private BufferedWriter out;
+
+        public ServerMock(Integer portNumber) {
+            try {
+                ServerSocket serverSocket = new ServerSocket(portNumber);
+                Thread serverThread = new Thread(() -> {
+                    try {
+                        server = serverSocket.accept();
+                        System.out.println("Client accepted");
+                        in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+                        out = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
+                    } catch (IOException ex) {
+                        System.out.println("Server mock Error");
+                    } finally {
+                        try {
+                            serverSocket.close();
+                        } catch (Exception e) {
+                           System.out.println("Error in closing server");
+                        }
+                    }
+                });
+                serverThread.start();
+            } catch (IOException ex) {
+
+            }
+        }
+
+        public void sendMessage(ChatMessage message) {
+            try {
+                out.write(message.getFormatMessage() + "\n");
+                out.flush();
+            } catch (Exception e) {
+
+            }
+        }
+
+        public ChatMessage readMessage() {
+            try {
+                String message = in.readLine();
+                return ChatMessage.fromFormatString(message);
+            } catch (Exception e) {
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            server.close();
+            in.close();
+            out.close();
+        }
+
+    }
 
     @Before
     public void beforeEachTest() {

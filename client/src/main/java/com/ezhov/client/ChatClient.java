@@ -41,12 +41,11 @@ public class ChatClient {
         initCommandsList();
     }
 
-    protected void  initThreads(){
-        if(!isStarted) {
+    protected void initThreads() {
+        if (!isStarted) {
             readerThread = new Thread(this::readMessages);
             writerThread = new Thread(this::writeMessages);
-        }
-        else {
+        } else {
             stop();
             initThreads();
         }
@@ -134,12 +133,12 @@ public class ChatClient {
     protected void writeMessages() {
         while (isStarted) {
             try {
-                if(scanner.hasNextLine()) {
-                currentMessage = scanner.nextLine();
-                // Add endline symbol in the end
-                ChatMessage mess = new ChatMessage(currentMessage, name);
-                connector.sendMessage(mess);
-                currentMessage = null;
+                if (scanner.hasNextLine()) {
+                    currentMessage = scanner.nextLine();
+                    // Add endline symbol in the end
+                    ChatMessage mess = new ChatMessage(currentMessage, name);
+                    connector.sendMessage(mess);
+                    currentMessage = null;
                 }
             } catch (IncorrectMessageException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during send message to server\n" + ex);
@@ -178,8 +177,8 @@ public class ChatClient {
 
     public void setInputStream(InputStream inputStream) {
         this.inputStream = inputStream;
-        if(scanner!= null){
-           scanner.close();
+        if (scanner != null) {
+            scanner.close();
         }
         scanner = new Scanner(inputStream);
         initThreads();
