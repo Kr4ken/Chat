@@ -1,4 +1,0 @@
-Welcome to chat.
-To start chatting type "/register <Nickname>" to registration, and continue conversation.
-To end chatting write "/close"
-
