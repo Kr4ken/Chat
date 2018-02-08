@@ -76,22 +76,12 @@ public class ChatServer {
         System.out.println("Server stop");
     }
 
-//    private void clearMessages(){
-//       if(messages.size()> chatServerSettings.getMaxMessages())
-//           messages.remove()
-//    }
-
     public synchronized void addMessage(ChatMessage chatMessage) {
         System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
         clients.stream()
                 .filter(client -> client.getClientName() != null && !client.getClientName().equals(chatMessage.getClient()) )
                 .forEach(client -> client.sendMessage(chatMessage));
-//        for (ChatClientController client : clients) {
-//            //Don't send message to yourself
-//            if (!client.getClientName().equals(chatMessage.getClient()))
-//                client.sendMessage(chatMessage);
-//        }
     }
 
     public synchronized void removeClient(ChatClientController client) {
