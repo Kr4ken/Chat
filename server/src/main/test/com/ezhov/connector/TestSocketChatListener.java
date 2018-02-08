@@ -2,7 +2,6 @@ package com.ezhov.connector;
 
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -79,20 +78,21 @@ public class TestSocketChatListener {
         listener.stop();
         stopClient();
     }
+
     @Test
-    public void testChatMessagingConnectors() throws IOException,IncorrectMessageException {
+    public void testChatMessagingConnectors() throws IOException, IncorrectMessageException {
         listener.start();
         startClient();
         ChatConnector connector = listener.getClient();
         connector.connect();
-        ChatMessage message = new ChatMessage("Message","Client");
+        ChatMessage message = new ChatMessage("Message", "Client");
         client.getOutputStream().write((message.getFormatMessage() + "\n").getBytes());
         client.getOutputStream().flush();
         ChatMessage recieved = connector.readMessage();
-        assertEquals(message,recieved);
+        assertEquals(message, recieved);
         connector.sendMessage(message);
-        recieved =ChatMessage.fromFormatString(new BufferedReader(new InputStreamReader(client.getInputStream())).readLine());
-        assertEquals(message,recieved);
+        recieved = ChatMessage.fromFormatString(new BufferedReader(new InputStreamReader(client.getInputStream())).readLine());
+        assertEquals(message, recieved);
         listener.stop();
         stopClient();
     }

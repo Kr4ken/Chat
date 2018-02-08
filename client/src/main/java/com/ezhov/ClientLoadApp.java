@@ -9,10 +9,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClientLoadApp {
-    private static Integer clientCount = 1000;
-    private static Integer delay = 20; // In seconds
+    private static Integer clientCount = 10;
+    private static Integer delay = 2; // In seconds
     private static Integer spamCount = 100;
-    private static String outputFilesPath = "/home/kraken/projects/Chat/loadTest/";
+    private static String outputFilesPath = "C:/backup/";
 
     private static InputStream getNewSpamerInputStream(String clientName) {
         try {
@@ -67,13 +67,13 @@ public class ClientLoadApp {
             outputFilesPath = args[0];
         }
         if (args.length > 1) {
-            clientCount = Integer.getInteger(args[1]);
+            clientCount = Integer.parseInt(args[1]);
         }
         if (args.length > 2) {
-            delay = Integer.getInteger(args[2]);
+            delay = Integer.parseInt(args[2]);
         }
         if (args.length > 3) {
-            spamCount = Integer.getInteger(args[3]);
+            spamCount = Integer.parseInt(args[3]);
         }
         for (int i = 0; i < clientCount; i++) {
             try {
