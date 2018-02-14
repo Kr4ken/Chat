@@ -1,10 +1,6 @@
 package com.ezhov.server;
 
-import com.ezhov.commands.server.ChatCommand;
-import com.ezhov.commands.server.CloseCommand;
-import com.ezhov.commands.server.CountCommand;
-import com.ezhov.commands.server.HelpChatCommand;
-import com.ezhov.commands.server.RegisterChatCommand;
+import com.ezhov.commands.server.*;
 import com.ezhov.connector.ChatConnector;
 import com.ezhov.connector.ChatListener;
 import com.ezhov.connector.ListenerSettings;
@@ -18,17 +14,20 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ChatServer {
 
-    protected Boolean isStarted;
+    protected AtomicBoolean isStarted;
     protected ChatListener chatListener;
     protected ListenerSettings settings;
     protected List<ChatMessage> messages;
-    protected List<ChatClientController> clients;
+    //    protected List<ChatClientController> clients;
+    protected CopyOnWriteArrayList<ChatClientController> clients;
     protected List<ChatCommand> commands;
 
     protected String name;
@@ -39,9 +38,9 @@ public class ChatServer {
     public ChatServer(ChatServerSettings chatServerSettings) {
         System.out.println("Server constructor!");
         commands = new LinkedList<>();
-        isStarted = false;
+        isStarted = new AtomicBoolean(false);
         messages = new LinkedList<>();
-        clients = new LinkedList<>();
+        clients = new CopyOnWriteArrayList<>();
         this.chatServerSettings = chatServerSettings;
         name = chatServerSettings.getSystemName();
         lastMessageCount = chatServerSettings.getLastMessageCount();
@@ -60,7 +59,7 @@ public class ChatServer {
         initCommands();
         try {
             chatListener.start();
-            isStarted = true;
+            isStarted.set(true);
             Thread listener = new Thread(this::clientListen);
             listener.start();
             System.out.println("Listener start");
@@ -71,7 +70,7 @@ public class ChatServer {
     }
 
     public void stop() {
-        isStarted = false;
+        isStarted.set(false);
         try {
             chatListener.stop();
         } catch (IOException ex) {
@@ -80,9 +79,15 @@ public class ChatServer {
         System.out.println("Server stop");
     }
 
+    private synchronized void clearExcessMessages() {
+        if (chatServerSettings.getMaxMessages() < messages.size())
+            messages =  messages.subList(messages.size() -1 - chatServerSettings.getMaxMessages() , messages.size());
+    }
+
     public synchronized void addMessage(ChatMessage chatMessage) {
         System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
         messages.add(chatMessage);
+        clearExcessMessages();
         clients.stream()
                 // Don't send not registred user and sender
                 .filter(client -> client.getClientName() != null && !client.getClientName().equals(chatMessage.getClient()))
@@ -119,7 +124,7 @@ public class ChatServer {
     }
 
     protected void clientListen() {
-        while (isStarted) {
+        while (isStarted.get()) {
             try {
                 ChatConnector connector = chatListener.getClient();
                 ChatClientController chatClient = new ChatClientController(this, connector);
@@ -156,7 +161,7 @@ public class ChatServer {
         return name;
     }
 
-    public List<ChatClientController> getClients() {
+    public CopyOnWriteArrayList<ChatClientController> getClients() {
         return clients;
     }
 
@@ -181,6 +186,6 @@ public class ChatServer {
     }
 
     public Boolean getStarted() {
-        return isStarted;
+        return isStarted.get();
     }
 }

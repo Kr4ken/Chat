@@ -24,7 +24,7 @@ public class ChatServerSettings {
         result.listenerSettings = ListenerSettings.getDefault();
         result.systemName = "SYSTEM";
         result.lastMessageCount = 100;
-        result.maxMessages = 1000;
+        result.maxMessages = 100;
         return result;
     }
 

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -22,7 +23,7 @@ public class ChatClient {
     protected List<ChatMessage> messages;
     protected List<ChatCommand> commands;
     protected String currentMessage;
-    protected Boolean isStarted;
+    protected AtomicBoolean isStarted;
     protected String name;
     protected Scanner scanner;
     protected Thread readerThread;
@@ -37,13 +38,13 @@ public class ChatClient {
         commands = new LinkedList<>();
         commandPattern = Pattern.compile(commandPatternString);
         messages = new LinkedList<>();
-        isStarted = false;
+        isStarted =  new AtomicBoolean(false);
         initThreads();
         initCommandsList();
     }
 
     protected void initThreads() {
-        if (!isStarted) {
+        if (!isStarted.get()) {
             readerThread = new Thread(this::readMessages);
             writerThread = new Thread(this::writeMessages);
         } else {
@@ -68,10 +69,10 @@ public class ChatClient {
 
     public void disconnect() {
         try {
-            connector.disconnect();
             scanner.close();
             inputStream.close();
             printStream.close();
+            connector.disconnect();
         } catch (IOException ex) {
             Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during server disconnection\n" + ex);
         }
@@ -114,7 +115,7 @@ public class ChatClient {
 
 
     protected void readMessages() {
-        while (isStarted) {
+        while (isStarted.get()) {
             try {
                 ChatMessage mess = connector.readMessage();
                 if (isCommand(mess.getMessage())) {
@@ -132,7 +133,7 @@ public class ChatClient {
     }
 
     protected void writeMessages() {
-        while (isStarted) {
+        while (isStarted.get()) {
             try {
                 if (scanner.hasNextLine()) {
                     currentMessage = scanner.nextLine();
@@ -152,7 +153,7 @@ public class ChatClient {
     }
 
     public void start() {
-        isStarted = true;
+        isStarted.set(true);
         connect();
         readerThread.start();
         writerThread.start();
@@ -160,7 +161,7 @@ public class ChatClient {
     }
 
     public void stop() {
-        isStarted = false;
+        isStarted.set(false);
         disconnect();
     }
 
