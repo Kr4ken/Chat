@@ -114,8 +114,10 @@ public class ChatServer {
     }
 
     public List<ChatMessage> getLastMessages() {
-        // Return only lastMessageCount messages
-        return messages.stream().skip(chatServerSettings.getMaxMessages() - lastMessageCount).collect(Collectors.toList());
+        // Return only last lastMessageCount messages
+        int skipCount = chatServerSettings.getMaxMessages() - lastMessageCount;
+        skipCount = skipCount < 0 ? 0:skipCount;
+        return messages.stream().skip(skipCount).collect(Collectors.toList());
     }
 
     public Map<String,ServerChatCommand> getCommands() {
