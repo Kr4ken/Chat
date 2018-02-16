@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
 
 import static org.junit.Assert.*;
 
@@ -139,6 +140,37 @@ public class TestChatMessage {
         assertEquals(LocalTime.parse("14:22:12", format), mess.getTime());
         assertEquals("[][][][|p[p{}", mess.getMessage());
         assertEquals("SYSTEM", mess.getClient());
+
+    }
+
+
+    @Test
+    public void testCommandParse() throws Exception {
+        String message = "[12:35:32|Kraken] /com";
+        ChatMessage mess = ChatMessage.fromFormatString(message);
+        assertTrue(mess.isCommand());
+        assertEquals("/com", mess.getCommandFromMessage());
+        // Must equals to empty list
+        assertEquals(new LinkedList<>(),mess.getParamsFromMessage());
+
+        message = "[12:35:32|Kraken] /com 1 2 3";
+        mess = ChatMessage.fromFormatString(message);
+        assertTrue(mess.isCommand());
+        assertEquals("/com", mess.getCommandFromMessage());
+        assertEquals("1", mess.getParamsFromMessage().get(0));
+        assertEquals("2", mess.getParamsFromMessage().get(1));
+        assertEquals("3", mess.getParamsFromMessage().get(2));
+        try{
+            mess.getParamsFromMessage().get(3);
+        }catch (IndexOutOfBoundsException ex){
+           assertTrue(true);
+        }
+
+        message = "[12:35:32|Kraken] \\com 1 2 3";
+        mess = ChatMessage.fromFormatString(message);
+        assertFalse(mess.isCommand());
+        assertNull(mess.getCommandFromMessage());
+        assertNull(mess.getParamsFromMessage());
 
     }
 

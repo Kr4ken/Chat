@@ -20,12 +20,10 @@ public class ChatClient {
     protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     protected ChatConnector connector;
     protected List<ChatMessage> messages;
-//    protected List<ClientChatCommand> commands;
     protected Map<String,ClientChatCommand> commands;
     protected String currentMessage;
     protected Boolean isStarted;
     protected String name;
-    //    protected Scanner scanner;
     protected Scanner scanner;
     protected Thread readerThread;
     protected Thread writerThread;
@@ -79,29 +77,10 @@ public class ChatClient {
         }
     }
 
-    protected Boolean isCommand(String message) {
-        return commandPattern.matcher(message).matches();
-    }
 
-    protected String getCommandFromMessage(String message) {
-        if (isCommand(message)) {
-            return message.split(" ")[0];
-        }
-        return null;
-    }
-
-    protected List<String> getParamsFromMessage(String message) {
-        if (isCommand(message)) {
-            String[] params = message.split(" ");
-            params = Arrays.copyOfRange(params, 1, params.length);
-            return Arrays.asList(params);
-        }
-        return null;
-    }
-
-    protected void executeCommand(String commandString) {
-        String command = getCommandFromMessage(commandString);
-        List<String> params = getParamsFromMessage(commandString);
+    protected void executeCommand(ChatMessage commandMessage) {
+        String command = commandMessage.getCommandFromMessage();
+        List<String> params = commandMessage.getParamsFromMessage();
 //        Optional<ClientChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
         ClientChatCommand clientChatCommand=  commands.getOrDefault(command,null);
         if (clientChatCommand != null) {
@@ -120,8 +99,9 @@ public class ChatClient {
         while (isStarted) {
             try {
                 ChatMessage mess = connector.readMessage();
-                if (isCommand(mess.getMessage())) {
-                    executeCommand(mess.getMessage());
+                if (mess.isCommand()) {
+//                    executeCommand(mess.getMessage());
+                    executeCommand(mess);
                 }
                 messages.add(mess);
                 printStream.println(mess.getFormatMessage());

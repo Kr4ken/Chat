@@ -32,26 +32,26 @@ public class ChatClientController {
         readerThread = new Thread(this::readMessage);
         commandPattern = Pattern.compile(commandPatternString);
     }
-
-    private Boolean isCommand(String message) {
-        return commandPattern.matcher(message).matches();
-    }
-
-    private String getCommandFromMessage(String message) {
-        if (isCommand(message)) {
-            return message.split(" ")[0];
-        }
-        return null;
-    }
-
-    private List<String> getParamsFromMessage(String message) {
-        if (isCommand(message)) {
-            String[] params = message.split(" ");
-            params = Arrays.copyOfRange(params, 1, params.length);
-            return Arrays.asList(params);
-        }
-        return null;
-    }
+//
+//    private Boolean isCommand(String message) {
+//        return commandPattern.matcher(message).matches();
+//    }
+//
+//    private String getCommandFromMessage(String message) {
+//        if (isCommand(message)) {
+//            return message.split(" ")[0];
+//        }
+//        return null;
+//    }
+//
+//    private List<String> getParamsFromMessage(String message) {
+//        if (isCommand(message)) {
+//            String[] params = message.split(" ");
+//            params = Arrays.copyOfRange(params, 1, params.length);
+//            return Arrays.asList(params);
+//        }
+//        return null;
+//    }
 
     private void readMessage() {
         while (isStarted) {
@@ -59,9 +59,9 @@ public class ChatClientController {
                 ChatMessage message = connector.readMessage();
                 LOGGER.log(Level.INFO,String.format("ChatClientController get new message %s : %s" ,message.getClient(),message.getMessage()));
                 // If command then do without registration(
-                if (isCommand(message.getMessage())) {
+                if (message.isCommand()) {
                     LOGGER.log(Level.INFO,"Message is command. Trying execute");
-                    server.executeCommand(this, getCommandFromMessage(message.getMessage()), getParamsFromMessage(message.getMessage()));
+                    server.executeCommand(this,message.getCommandFromMessage(),message.getParamsFromMessage());
                 } else {
                     // If user registred
                     if (isAllowed(message)) {

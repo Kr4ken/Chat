@@ -7,6 +7,7 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,7 +23,7 @@ public class RegisterServerChatCommand extends ServerChatCommand {
     public static final Object lock = new Object();
 
     private Boolean isValidName(ChatServer server, String name) {
-        LinkedBlockingDeque<ChatClientController> clients = server.getClients();
+        CopyOnWriteArrayList<ChatClientController> clients = server.getClients();
         Boolean nameExist = clients.stream().anyMatch(chatClient -> name.equals(chatClient.getClientName()));
         Boolean systemEquals = name.equals(server.getSystemUserName());
         return !systemEquals && !nameExist;
@@ -41,6 +42,7 @@ public class RegisterServerChatCommand extends ServerChatCommand {
         // This command have one param and this is name
         String name = params.get(0);
         LOGGER.log(Level.INFO,String.format("register name: %s ",name));
+        // Only one registration process at any moment of time
         synchronized (lock) {
             if (isValidName(server, name)) {
                 LOGGER.log(Level.INFO,"Name valid");

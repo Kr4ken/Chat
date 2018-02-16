@@ -5,6 +5,8 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +19,8 @@ public class ChatMessage {
     private LocalTime time;
     private DateTimeFormatter dateTimeFormatter;
     private Pattern messagePattern;
+    private Pattern commandPattern;
+    private final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
 
     private ChatMessage() {
         init();
@@ -46,6 +50,7 @@ public class ChatMessage {
     private void init() {
         messagePattern = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\|\\w+\\] .+");
         dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat);
+        commandPattern = Pattern.compile(commandPatternString);
     }
 
     public void parseMessage(String formatMessage) throws IncorrectMessageException {
@@ -116,6 +121,25 @@ public class ChatMessage {
         this.time = time;
     }
 
+    public Boolean isCommand() {
+        return commandPattern.matcher(message).matches();
+    }
+
+    public String getCommandFromMessage() {
+        if (this.isCommand()) {
+            return message.split(" ")[0];
+        }
+        return null;
+    }
+
+    public List<String> getParamsFromMessage() {
+        if (this.isCommand()) {
+            String[] params = message.split(" ");
+            params = Arrays.copyOfRange(params, 1, params.length);
+            return Arrays.asList(params);
+        }
+        return null;
+    }
 
 
 }
