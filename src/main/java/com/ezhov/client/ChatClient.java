@@ -20,7 +20,8 @@ public class ChatClient {
     protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     protected ChatConnector connector;
     protected List<ChatMessage> messages;
-    protected List<ClientChatCommand> commands;
+//    protected List<ClientChatCommand> commands;
+    protected Map<String,ClientChatCommand> commands;
     protected String currentMessage;
     protected Boolean isStarted;
     protected String name;
@@ -35,7 +36,7 @@ public class ChatClient {
     protected PrintStream printStream;
 
     public ChatClient() {
-        commands = new LinkedList<>();
+        commands = new HashMap<>();
         commandPattern = Pattern.compile(commandPatternString);
         messages = new LinkedList<>();
         isStarted = false;
@@ -101,10 +102,11 @@ public class ChatClient {
     protected void executeCommand(String commandString) {
         String command = getCommandFromMessage(commandString);
         List<String> params = getParamsFromMessage(commandString);
-        Optional<ClientChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
-        if (chatCommand.isPresent()) {
+//        Optional<ClientChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
+        ClientChatCommand clientChatCommand=  commands.getOrDefault(command,null);
+        if (clientChatCommand != null) {
             try {
-                chatCommand.get().action(params);
+                clientChatCommand.action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
                 LOGGER.log(Level.SEVERE, "Error when commmand execution\n", ex);
             }
@@ -143,7 +145,9 @@ public class ChatClient {
                     currentMessage = null;
                 }
             } catch (IncorrectMessageException ex) {
-                LOGGER.log(Level.SEVERE, "Error during send message to server\n" , ex);
+                // More common view to client see
+                printStream.println("Incorrect message " + ex);
+//                LOGGER.log(Level.SEVERE, "Error during send message to server\n" , ex);
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, "Read/Write message error\n" , ex);
                 stop();

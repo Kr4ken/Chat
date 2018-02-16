@@ -1,5 +1,6 @@
 package com.ezhov.client;
 
+import com.ezhov.commands.client.ClientChatCommand;
 import com.ezhov.commands.client.CloseCommandClient;
 import com.ezhov.commands.client.RegisterClientChatCommand;
 import com.ezhov.connector.SocketChatConnector;
@@ -33,8 +34,10 @@ public class ChatClientTerminal extends ChatClient {
     @Override
     protected void initCommandsList() {
         super.initCommandsList();
-        commands.add(new RegisterClientChatCommand(this));
-        commands.add(new CloseCommandClient(this));
+        ClientChatCommand command = new RegisterClientChatCommand(this);
+        commands.put(command.getCommand(),command);
+        command = new CloseCommandClient(this);
+        commands.put(command.getCommand(),command);
     }
 
     @Override

@@ -12,9 +12,7 @@ import com.ezhov.settings.ChatServerSettings;
 import com.ezhov.settings.ListenerSettings;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -27,7 +25,8 @@ public class ChatServer {
     protected ListenerSettings settings;
     protected LinkedBlockingDeque<ChatMessage> messages;
     protected LinkedBlockingDeque<ChatClientController> clients;
-    protected List<ServerChatCommand> commands;
+//    protected List<ServerChatCommand> commands;
+    protected Map<String,ServerChatCommand> commands;
 
     protected String name;
     protected Integer lastMessageCount;
@@ -38,7 +37,8 @@ public class ChatServer {
 
     public ChatServer(ChatServerSettings chatServerSettings) {
         LOGGER.log(Level.INFO,"Server constructor");
-        commands = new LinkedList<>();
+//        commands = new LinkedList<>();
+        commands = new HashMap<>();
         isStarted = new AtomicBoolean(false);
         messages = new LinkedBlockingDeque<>();
         clients = new LinkedBlockingDeque<>();
@@ -49,10 +49,14 @@ public class ChatServer {
     }
 
     protected void initCommands() {
-        commands.add(new RegisterServerChatCommand());
-        commands.add(new CountCommandServer());
-        commands.add(new HelpServerChatCommand());
-        commands.add(new CloseCommandServer());
+        ServerChatCommand command = new RegisterServerChatCommand();
+        commands.put(command.getCommand(),command);
+        command =new CountCommandServer();
+        commands.put(command.getCommand(),command);
+        command = new HelpServerChatCommand();
+        commands.put(command.getCommand(),command);
+        command = new CloseCommandServer();
+        commands.put(command.getCommand(),command);
     }
 
     public void run() {
@@ -113,15 +117,15 @@ public class ChatServer {
         return messages.stream().limit(lastMessageCount).collect(Collectors.toList());
     }
 
-    public List<ServerChatCommand> getCommands() {
+    public Map<String,ServerChatCommand> getCommands() {
         return commands;
     }
 
     public void executeCommand(String command, List<String> params) {
-        Optional<ServerChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
-        if (chatCommand.isPresent()) {
+        ServerChatCommand serverChatCommand=  commands.getOrDefault(command,null);
+        if (serverChatCommand != null) {
             try {
-                chatCommand.get().action(params);
+                serverChatCommand.action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
                 LOGGER.log(Level.SEVERE, "Error executing command.", ex);
             }
@@ -142,11 +146,12 @@ public class ChatServer {
     }
 
     public void executeCommand(ChatClientController client, String command, List<String> params) {
-        Optional<ServerChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
-        if (chatCommand.isPresent()) {
+//        Optional<ServerChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
+        ServerChatCommand serverChatCommand=  commands.getOrDefault(command,null);
+        if (serverChatCommand != null) {
             LOGGER.log(Level.INFO,"Command found execute");
             try {
-                chatCommand.get().action(client, this, params);
+                serverChatCommand.action(client, this, params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
                 LOGGER.log(Level.SEVERE, "Error executing command. " , ex);
             }

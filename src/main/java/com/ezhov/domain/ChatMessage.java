@@ -115,5 +115,8 @@ public class ChatMessage {
     public void setTime(LocalTime time) {
         this.time = time;
     }
+
+
+
 }
 

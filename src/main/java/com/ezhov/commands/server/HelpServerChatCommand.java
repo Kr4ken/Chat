@@ -25,7 +25,7 @@ public class HelpServerChatCommand extends ServerChatCommand {
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
         LOGGER.log(Level.INFO,"Execute help command");
-        for (ServerChatCommand serverChatCommand : server.getCommands()) {
+        for (ServerChatCommand serverChatCommand : server.getCommands().values()) {
             ChatMessage answerMessage = new ChatMessage(String.format("> %s - %s", serverChatCommand.getCommand(), serverChatCommand.getInfo()), server.getSystemUserName());
             client.sendMessage(answerMessage);
         }
