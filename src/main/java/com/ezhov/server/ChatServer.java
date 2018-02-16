@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
 public class ChatServer {
 
     protected AtomicBoolean isStarted;
@@ -35,8 +34,10 @@ public class ChatServer {
 
     ChatServerSettings chatServerSettings;
 
+    private static Logger LOGGER = Logger.getLogger(ChatServer.class.getName());
+
     public ChatServer(ChatServerSettings chatServerSettings) {
-        System.out.println("Server constructor!");
+        LOGGER.log(Level.INFO,"Server constructor");
         commands = new LinkedList<>();
         isStarted = new AtomicBoolean(false);
         messages = new LinkedBlockingDeque<>();
@@ -55,16 +56,17 @@ public class ChatServer {
     }
 
     public void run() {
-        System.out.println("Server start");
+        LOGGER.log(Level.INFO,"Server start");
         initCommands();
         try {
             isStarted.set(true);
             chatListener.start();
             Thread listener = new Thread(this::clientListen);
             listener.start();
-            System.out.println("Listener start");
+            LOGGER.log(Level.INFO,"Listener start");
         } catch (IOException ex) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+//            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+            LOGGER.log(Level.SEVERE,"Occured error during established server connection",ex);
             stop();
         }
     }
@@ -74,18 +76,21 @@ public class ChatServer {
         try {
             chatListener.stop();
         } catch (IOException ex) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error wheh trying stop listener " + ex);
+//            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error wheh trying stop listener " + ex);
+            LOGGER.log(Level.SEVERE,"Error wheh trying stop listener",ex);
         }
-        System.out.println("Server stop");
+        LOGGER.log(Level.INFO,"Server stop");
+//        System.out.println("Server stop");
     }
 
     private void clearMessages(){
        while(messages.size() > chatServerSettings.getMaxMessages())
            messages.removeFirst();
+//           LOGGER.log(Level.INFO,"Message overflow delete message");
     }
 
     public void addMessage(ChatMessage chatMessage) {
-        System.out.println("Add message in list :" + chatMessage.getClient() + ":" + chatMessage.getMessage());
+        LOGGER.log(Level.INFO,String.format("Add message in list : %s:%s",   chatMessage.getClient(),chatMessage.getMessage()));
         messages.add(chatMessage);
         clients.stream()
                 // Don't send not registred user and sender
@@ -95,12 +100,12 @@ public class ChatServer {
     }
 
     public void removeClient(ChatClientController client) {
-        System.out.println("Remove client from client list :" + client.getClientName());
+        LOGGER.log(Level.INFO,String.format("Remove client from client list : %s" , client.getClientName()));
         clients.remove(client);
     }
 
     public void addClient(ChatClientController client) {
-        System.out.println("Add new client in list :" + client.getClientName());
+        LOGGER.log(Level.INFO,String.format("Add new client in list : %s" , client.getClientName()));
         clients.add(client);
     }
 
@@ -118,7 +123,7 @@ public class ChatServer {
             try {
                 chatCommand.get().action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error executing command. " + ex);
+                LOGGER.log(Level.SEVERE, "Error executing command.", ex);
             }
         }
     }
@@ -131,7 +136,7 @@ public class ChatServer {
                 addClient(chatClient);
                 chatClient.start();
             } catch (IOException ex) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Occured error during established server connection" + ex);
+                LOGGER.log(Level.SEVERE, "Occured error during established server connection",ex);
             }
         }
     }
@@ -139,11 +144,11 @@ public class ChatServer {
     public void executeCommand(ChatClientController client, String command, List<String> params) {
         Optional<ServerChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
         if (chatCommand.isPresent()) {
-            System.out.println("Command found execute ");
+            LOGGER.log(Level.INFO,"Command found execute");
             try {
                 chatCommand.get().action(client, this, params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error executing command. " + ex);
+                LOGGER.log(Level.SEVERE, "Error executing command. " , ex);
             }
         }
         // Command not found
@@ -151,8 +156,8 @@ public class ChatServer {
             try {
                 ChatMessage alertMessage = new ChatMessage("Command " + command + " not found", getSystemUserName());
                 client.sendMessage(alertMessage);
-            } catch (Exception e) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Error send message to Client" + e);
+            } catch (IncorrectMessageException ex) {
+                LOGGER.log(Level.SEVERE, "Error send message to Client" ,ex);
             }
         }
     }

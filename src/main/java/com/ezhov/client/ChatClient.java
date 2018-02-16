@@ -2,20 +2,21 @@ package com.ezhov.client;
 
 import com.ezhov.commands.client.ClientChatCommand;
 import com.ezhov.connector.ChatConnector;
-import com.ezhov.settings.ConnectorSettings;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
 import com.ezhov.exceptions.IncorrectMessageException;
-import sun.misc.IOUtils;
-import sun.nio.ch.IOUtil;
+import com.ezhov.settings.ConnectorSettings;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class ChatClient {
+    private static Logger LOGGER = Logger.getLogger(ChatClient.class.getName());
     protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     protected ChatConnector connector;
     protected List<ChatMessage> messages;
@@ -23,6 +24,7 @@ public class ChatClient {
     protected String currentMessage;
     protected Boolean isStarted;
     protected String name;
+    //    protected Scanner scanner;
     protected Scanner scanner;
     protected Thread readerThread;
     protected Thread writerThread;
@@ -61,19 +63,18 @@ public class ChatClient {
                 connector.connect();
             }
         } catch (IOException ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during established server connection\n" + ex);
+            LOGGER.log(Level.SEVERE, "Error during established server connection\n", ex);
         }
     }
 
     public void disconnect() {
         try {
             connector.disconnect();
-            scanner.close();
-            inputStream.read("\n".getBytes());
             inputStream.close();
             printStream.close();
+            scanner.close();
         } catch (IOException ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during server disconnection\n" + ex);
+            LOGGER.log(Level.SEVERE, "Error during server disconnection\n", ex);
         }
     }
 
@@ -105,10 +106,10 @@ public class ChatClient {
             try {
                 chatCommand.get().action(params);
             } catch (IncorrectMessageException | IncorrectCommandFormat ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error when commmand execution\n" + ex);
+                LOGGER.log(Level.SEVERE, "Error when commmand execution\n", ex);
             }
         } else {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.WARNING, String.format("Command %s not found\n", command));
+            LOGGER.log(Level.WARNING, String.format("Command %s not found\n", command));
         }
     }
 
@@ -123,9 +124,9 @@ public class ChatClient {
                 messages.add(mess);
                 printStream.println(mess.getFormatMessage());
             } catch (IncorrectMessageException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during read server message\n" + ex);
+                LOGGER.log(Level.SEVERE, "Error during read server message\n" , ex);
             } catch (IOException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Read/Write message error\n" + ex);
+                LOGGER.log(Level.SEVERE, "Read/Write message error\n" , ex);
                 stop();
             }
         }
@@ -142,9 +143,9 @@ public class ChatClient {
                     currentMessage = null;
                 }
             } catch (IncorrectMessageException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Error during send message to server\n" + ex);
+                LOGGER.log(Level.SEVERE, "Error during send message to server\n" , ex);
             } catch (IOException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Read/Write message error\n" + ex);
+                LOGGER.log(Level.SEVERE, "Read/Write message error\n" , ex);
                 stop();
             }
         }

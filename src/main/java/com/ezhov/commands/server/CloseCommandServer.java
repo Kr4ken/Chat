@@ -7,8 +7,12 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CloseCommandServer extends ServerChatCommand {
+
+    private static Logger LOGGER = Logger.getLogger(CloseCommandServer.class.getName());
 
     public CloseCommandServer() {
         command = "/close";
@@ -21,7 +25,7 @@ public class CloseCommandServer extends ServerChatCommand {
 
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
-        System.out.println("Execute close command");
+        LOGGER.log(Level.INFO,"Execute close command");
         ChatMessage closeMessage = new ChatMessage(command, server.getSystemUserName());
         client.sendMessage(closeMessage);
         client.stop();

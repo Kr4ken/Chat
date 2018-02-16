@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 public class ChatClientController {
 
+    private static Logger LOGGER = Logger.getLogger(ChatClientController.class.getName());
+
     private final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     private String clientName;
     private ChatConnector connector;
@@ -55,24 +57,24 @@ public class ChatClientController {
         while (isStarted) {
             try {
                 ChatMessage message = connector.readMessage();
-                System.out.println("ChatClientController get new message " + message.getClient() + " : " + message.getMessage());
+                LOGGER.log(Level.INFO,String.format("ChatClientController get new message %s : %s" ,message.getClient(),message.getMessage()));
                 // If command then do without registration(
                 if (isCommand(message.getMessage())) {
-                    System.out.println("Message is command. Trying execute");
+                    LOGGER.log(Level.INFO,"Message is command. Trying execute");
                     server.executeCommand(this, getCommandFromMessage(message.getMessage()), getParamsFromMessage(message.getMessage()));
                 } else {
                     // If user registred
                     if (isAllowed(message)) {
-                        System.out.println("User register. All Ok");
+                        LOGGER.log(Level.INFO,"User register. All Ok");
                         server.addMessage(message);
                     } else {
-                        System.out.println("User not register. Need registration");
+                        LOGGER.log(Level.INFO,"User not register. Need registration");
                         ChatMessage errorMessage = new ChatMessage("You not authorized. Use /register to register yourserlf, or /help to show all command list", server.getSystemUserName());
                         sendMessage(errorMessage);
                     }
                 }
             } catch (IOException | IncorrectMessageException ex) {
-                Logger.getLogger(ChatClientController.class.getName()).log(Level.SEVERE, "Occured error during read server message" + ex);
+                LOGGER.log(Level.SEVERE, "Occured error during read server message", ex);
                 stop();
             }
         }
@@ -86,21 +88,22 @@ public class ChatClientController {
         try {
             // Check client auth
             if (clientName != null || message.getClient().equals(server.getSystemUserName())) {
-                System.out.println("Send message to " + clientName + " Message:" + message.getMessage());
+                LOGGER.log(Level.INFO,String.format("Send message to %s  Message: %s",clientName, message.getMessage()));
                 connector.sendMessage(message);
             }
         } catch (IOException | IncorrectMessageException ex) {
-            Logger.getLogger(ChatClientController.class.getName()).log(Level.SEVERE, "Occured error during send server message" + ex);
+            LOGGER.log(Level.SEVERE, "Occured error during send server message",ex);
         }
 
     }
 
     public void start() {
         isStarted = true;
-        System.out.println("Client readerStart");
+        LOGGER.log(Level.INFO,"Client readerStart");
         try {
             connector.connect();
         } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "Error when starting client chatting",ex);
             stop();
         }
         readerThread.start();
@@ -108,11 +111,12 @@ public class ChatClientController {
 
     public void stop() {
         isStarted = false;
-        System.out.println("Client reader stop");
+        LOGGER.log(Level.INFO,"Client reader stop");
         server.removeClient(this);
         try {
             connector.disconnect();
         } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "Error when stop client chatting",ex);
         }
     }
 

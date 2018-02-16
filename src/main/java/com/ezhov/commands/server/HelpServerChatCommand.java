@@ -7,8 +7,11 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HelpServerChatCommand extends ServerChatCommand {
+    private static Logger LOGGER = Logger.getLogger(HelpServerChatCommand.class.getName());
     public HelpServerChatCommand() {
         command = "/help";
         info = "List all avaliable commands";
@@ -21,7 +24,7 @@ public class HelpServerChatCommand extends ServerChatCommand {
 
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
-        System.out.println("Execute help command");
+        LOGGER.log(Level.INFO,"Execute help command");
         for (ServerChatCommand serverChatCommand : server.getCommands()) {
             ChatMessage answerMessage = new ChatMessage(String.format("> %s - %s", serverChatCommand.getCommand(), serverChatCommand.getInfo()), server.getSystemUserName());
             client.sendMessage(answerMessage);

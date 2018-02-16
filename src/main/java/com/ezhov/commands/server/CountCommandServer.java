@@ -7,8 +7,11 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CountCommandServer extends ServerChatCommand {
+    private static Logger LOGGER = Logger.getLogger(CountCommandServer.class.getName());
     public CountCommandServer() {
         command = "/count";
         info = "Show exist count clients in chat";
@@ -20,7 +23,7 @@ public class CountCommandServer extends ServerChatCommand {
 
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
-        System.out.println("Execute count command");
+        LOGGER.log(Level.INFO,"Execute count command");
         ChatMessage countMessage = new ChatMessage(String.format("%d Clients in chat now", server.getClients().size()), server.getSystemUserName());
         client.sendMessage(countMessage);
     }

@@ -42,6 +42,8 @@ public class SocketChatConnector implements ChatConnector {
 
     public ChatMessage readMessage() throws IOException, IncorrectMessageException {
         String formatMessage = in.readLine();
+        if(formatMessage == null)
+            throw new IOException("Get null message");
         return ChatMessage.fromFormatString(formatMessage);
     }
 

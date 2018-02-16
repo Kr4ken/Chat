@@ -59,7 +59,7 @@ public class TestSocketChatListener {
     public void testConnectChatListener() throws IOException {
         listener.start();
         startClient();
-        ChatConnector2 connector = listener.getClient();
+        ChatConnector connector = listener.getClient();
         assertNotNull(connector);
         listener.stop();
         stopClient();
@@ -70,7 +70,7 @@ public class TestSocketChatListener {
     public void testChatConnector() throws IOException {
         listener.start();
         startClient();
-        ChatConnector2 connector = listener.getClient();
+        ChatConnector connector = listener.getClient();
         assertFalse(connector.checkStatus());
         connector.connect();
         assertTrue(connector.checkStatus());
@@ -84,7 +84,7 @@ public class TestSocketChatListener {
     public void testChatMessagingConnectors() throws IOException, IncorrectMessageException {
         listener.start();
         startClient();
-        ChatConnector2 connector = listener.getClient();
+        ChatConnector connector = listener.getClient();
         connector.connect();
         ChatMessage message = new ChatMessage("Message", "Client");
         client.getOutputStream().write((message.getFormatMessage() + "\n").getBytes());

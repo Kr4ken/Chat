@@ -10,6 +10,15 @@
         <jdk.version>1.8</jdk.version>
         <junit.version>4.12</junit.version>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <!--<finalName>ChatClient</finalName>-->
         <!--<directory>${basedir}/target/</directory>-->

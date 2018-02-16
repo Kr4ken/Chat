@@ -8,8 +8,12 @@ import com.ezhov.server.ChatServer;
 
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RegisterServerChatCommand extends ServerChatCommand {
+    private static Logger LOGGER = Logger.getLogger(RegisterServerChatCommand.class.getName());
+
     public RegisterServerChatCommand() {
         command = "/register";
         info = "Command for registration. Use when you wanna start to chat or change name";
@@ -31,26 +35,24 @@ public class RegisterServerChatCommand extends ServerChatCommand {
 
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
-        System.out.println("Execute register command withs params");
+        LOGGER.log(Level.INFO,"Execute register command withs params");
         if (params.size() != 1 || params.get(0) == null || params.get(0).equals(""))
             throw new IncorrectCommandFormat("Incorrect params for command " + command);
         // This command have one param and this is name
         String name = params.get(0);
-        System.out.println("register name = " + name);
+        LOGGER.log(Level.INFO,String.format("register name: %s ",name));
         synchronized (lock) {
             if (isValidName(server, name)) {
-                System.out.println("Name is valid");
+                LOGGER.log(Level.INFO,"Name valid");
                 client.setClientName(name);
-                System.out.println("Client name set " + client.getClientName());
                 ChatMessage answerMessage = new ChatMessage(String.format("%s %s", command, name), server.getSystemUserName());
                 client.sendMessage(answerMessage);
-                System.out.println("Client send message " + answerMessage.getFormatMessage());
                 for (ChatMessage message : server.getLastMessages()) {
                     client.sendMessage(message);
                 }
-                System.out.println("Client send history ");
+                LOGGER.log(Level.INFO,String.format("Client %s registred and send history",name));
             } else {
-                System.out.println("Name is invalid");
+                LOGGER.log(Level.INFO,"Name is invalid");
                 ChatMessage answerMessage = new ChatMessage("Name " + name + " already in use. Choose another one.", server.getSystemUserName());
                 client.sendMessage(answerMessage);
             }
