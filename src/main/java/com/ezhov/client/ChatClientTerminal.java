@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 
 public class ChatClientTerminal extends ChatClient {
 
+    private static Logger LOGGER = Logger.getLogger(ChatClientTerminal.class.getName());
+
     private ClientSettings clientSettings;
     private String startInfoMessage;
 
@@ -51,7 +53,7 @@ public class ChatClientTerminal extends ChatClient {
                 connector.sendMessage(registerMessage);
             }
         } catch (IOException | IncorrectMessageException ex) {
-            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Error during initial registration\n" + ex);
+           LOGGER.log(Level.SEVERE, "Error during initial registration\n" ,ex);
         }
     }
 
@@ -68,7 +70,7 @@ public class ChatClientTerminal extends ChatClient {
                 ChatMessage registerMessage = new ChatMessage("/close", name);
                 connector.sendMessage(registerMessage);
         } catch (IOException | IncorrectMessageException ex) {
-            Logger.getLogger(ChatClientTerminal.class.getName()).log(Level.SEVERE, "Error during disconnect\n" + ex);
+           LOGGER.log(Level.SEVERE, "Error during disconnect\n", ex);
         }
         super.stop();
     }

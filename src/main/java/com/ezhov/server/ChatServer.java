@@ -92,23 +92,25 @@ public class ChatServer {
     }
 
     public void addMessage(ChatMessage chatMessage) {
-        LOGGER.log(Level.INFO,String.format("Add message in list : %s:%s",   chatMessage.getClient(),chatMessage.getMessage()));
+        // Operataion thread safe
         messages.add(chatMessage);
         clients.stream()
                 // Don't send not registred user and sender
                 .filter(client -> client.getClientName() != null && !client.getClientName().equals(chatMessage.getClient()))
                 .forEach(client -> client.sendMessage(chatMessage));
         clearMessages();
+        LOGGER.log(Level.INFO,String.format("Add message in list : %s:%s",   chatMessage.getClient(),chatMessage.getMessage()));
     }
 
     public void removeClient(ChatClientController client) {
-        LOGGER.log(Level.INFO,String.format("Remove client from client list : %s" , client.getClientName()));
+        // Operataion thread safe
         clients.remove(client);
+        LOGGER.log(Level.INFO,String.format("Remove client from client list : %s" , client.getClientName()));
     }
 
     public void addClient(ChatClientController client) {
-        LOGGER.log(Level.INFO,String.format("Add new client in list : %s" , client.getClientName()));
         clients.add(client);
+        LOGGER.log(Level.INFO,String.format("Add new client in list : %s" , client.getClientName()));
     }
 
     public List<ChatMessage> getLastMessages() {

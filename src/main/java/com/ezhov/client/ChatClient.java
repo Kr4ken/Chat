@@ -11,39 +11,38 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 public class ChatClient {
     private static Logger LOGGER = Logger.getLogger(ChatClient.class.getName());
-    protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
+
     protected ChatConnector connector;
     protected List<ChatMessage> messages;
-    protected Map<String,ClientChatCommand> commands;
+    protected Map<String, ClientChatCommand> commands;
+
     protected String currentMessage;
-    protected Boolean isStarted;
+    protected AtomicBoolean isStarted;
     protected String name;
     protected Scanner scanner;
     protected Thread readerThread;
     protected Thread writerThread;
     protected ConnectorSettings connectorSettings;
-    protected Pattern commandPattern;
 
     protected InputStream inputStream;
     protected PrintStream printStream;
 
     public ChatClient() {
         commands = new HashMap<>();
-        commandPattern = Pattern.compile(commandPatternString);
         messages = new LinkedList<>();
-        isStarted = false;
+        isStarted =  new AtomicBoolean(false);
         initThreads();
         initCommandsList();
     }
 
     protected void initThreads() {
-        if (!isStarted) {
+        if (!isStarted.get()) {
             readerThread = new Thread(this::readMessages);
             writerThread = new Thread(this::writeMessages);
         } else {
@@ -81,8 +80,7 @@ public class ChatClient {
     protected void executeCommand(ChatMessage commandMessage) {
         String command = commandMessage.getCommandFromMessage();
         List<String> params = commandMessage.getParamsFromMessage();
-//        Optional<ClientChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
-        ClientChatCommand clientChatCommand=  commands.getOrDefault(command,null);
+        ClientChatCommand clientChatCommand = commands.getOrDefault(command, null);
         if (clientChatCommand != null) {
             try {
                 clientChatCommand.action(params);
@@ -96,40 +94,37 @@ public class ChatClient {
 
 
     protected void readMessages() {
-        while (isStarted) {
+        while (isStarted.get()) {
             try {
                 ChatMessage mess = connector.readMessage();
                 if (mess.isCommand()) {
-//                    executeCommand(mess.getMessage());
                     executeCommand(mess);
                 }
                 messages.add(mess);
                 printStream.println(mess.getFormatMessage());
             } catch (IncorrectMessageException ex) {
-                LOGGER.log(Level.SEVERE, "Error during read server message\n" , ex);
+                LOGGER.log(Level.SEVERE, "Error during read server message\n", ex);
             } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, "Read/Write message error\n" , ex);
+                LOGGER.log(Level.SEVERE, "Read/Write message error\n", ex);
                 stop();
             }
         }
     }
 
     protected void writeMessages() {
-        while (isStarted) {
+        while (isStarted.get()) {
             try {
                 if (scanner.hasNextLine()) {
                     currentMessage = scanner.nextLine();
-                    // Add endline symbol in the end
                     ChatMessage mess = new ChatMessage(currentMessage, name);
                     connector.sendMessage(mess);
                     currentMessage = null;
                 }
             } catch (IncorrectMessageException ex) {
-                // More common view to client see
+                // More convenient view
                 printStream.println("Incorrect message " + ex);
-//                LOGGER.log(Level.SEVERE, "Error during send message to server\n" , ex);
             } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, "Read/Write message error\n" , ex);
+                LOGGER.log(Level.SEVERE, "Read/Write message error\n", ex);
                 stop();
             }
         }
@@ -137,15 +132,14 @@ public class ChatClient {
     }
 
     public void start() {
-        isStarted = true;
+        isStarted.set(true);
         connect();
         readerThread.start();
         writerThread.start();
-
     }
 
     public void stop() {
-        isStarted = false;
+        isStarted.set(false);
         disconnect();
     }
 

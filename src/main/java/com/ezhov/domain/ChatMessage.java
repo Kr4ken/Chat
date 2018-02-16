@@ -21,6 +21,7 @@ public class ChatMessage {
     private Pattern messagePattern;
     private Pattern commandPattern;
     private final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
+    private final String messagePatternString = "\\[\\d{2}:\\d{2}:\\d{2}\\|\\w+\\] .+";
 
     private ChatMessage() {
         init();
@@ -48,7 +49,7 @@ public class ChatMessage {
     }
 
     private void init() {
-        messagePattern = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\|\\w+\\] .+");
+        messagePattern = Pattern.compile(messagePatternString);
         dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat);
         commandPattern = Pattern.compile(commandPatternString);
     }

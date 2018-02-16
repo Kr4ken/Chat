@@ -8,6 +8,7 @@ import com.ezhov.server.ChatServer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -17,53 +18,30 @@ public class ChatClientController {
 
     private static Logger LOGGER = Logger.getLogger(ChatClientController.class.getName());
 
-    private final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     private String clientName;
     private ChatConnector connector;
     private ChatServer server;
-    private Boolean isStarted;
+    private AtomicBoolean isStarted;
     private Thread readerThread;
-    private Pattern commandPattern;
 
     public ChatClientController(ChatServer server, ChatConnector connector) {
-        isStarted = false;
+        isStarted = new AtomicBoolean(false);
         this.server = server;
         this.connector = connector;
         readerThread = new Thread(this::readMessage);
-        commandPattern = Pattern.compile(commandPatternString);
     }
-//
-//    private Boolean isCommand(String message) {
-//        return commandPattern.matcher(message).matches();
-//    }
-//
-//    private String getCommandFromMessage(String message) {
-//        if (isCommand(message)) {
-//            return message.split(" ")[0];
-//        }
-//        return null;
-//    }
-//
-//    private List<String> getParamsFromMessage(String message) {
-//        if (isCommand(message)) {
-//            String[] params = message.split(" ");
-//            params = Arrays.copyOfRange(params, 1, params.length);
-//            return Arrays.asList(params);
-//        }
-//        return null;
-//    }
 
     private void readMessage() {
-        while (isStarted) {
+        while (isStarted.get()) {
             try {
                 ChatMessage message = connector.readMessage();
                 LOGGER.log(Level.INFO,String.format("ChatClientController get new message %s : %s" ,message.getClient(),message.getMessage()));
-                // If command then do without registration(
+                // If command then do without registration
                 if (message.isCommand()) {
                     LOGGER.log(Level.INFO,"Message is command. Trying execute");
                     server.executeCommand(this,message.getCommandFromMessage(),message.getParamsFromMessage());
                 } else {
-                    // If user registred
+                    // If user register
                     if (isAllowed(message)) {
                         LOGGER.log(Level.INFO,"User register. All Ok");
                         server.addMessage(message);
@@ -98,7 +76,7 @@ public class ChatClientController {
     }
 
     public void start() {
-        isStarted = true;
+        isStarted.set(true);
         LOGGER.log(Level.INFO,"Client readerStart");
         try {
             connector.connect();
@@ -110,7 +88,7 @@ public class ChatClientController {
     }
 
     public void stop() {
-        isStarted = false;
+        isStarted.set(false);
         LOGGER.log(Level.INFO,"Client reader stop");
         server.removeClient(this);
         try {

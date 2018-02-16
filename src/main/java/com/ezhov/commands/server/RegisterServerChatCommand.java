@@ -36,6 +36,7 @@ public class RegisterServerChatCommand extends ServerChatCommand {
 
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
+        Boolean success = false;
         LOGGER.log(Level.INFO,"Execute register command withs params");
         if (params.size() != 1 || params.get(0) == null || params.get(0).equals(""))
             throw new IncorrectCommandFormat("Incorrect params for command " + command);
@@ -49,15 +50,23 @@ public class RegisterServerChatCommand extends ServerChatCommand {
                 client.setClientName(name);
                 ChatMessage answerMessage = new ChatMessage(String.format("%s %s", command, name), server.getSystemUserName());
                 client.sendMessage(answerMessage);
-                for (ChatMessage message : server.getLastMessages()) {
-                    client.sendMessage(message);
-                }
-                LOGGER.log(Level.INFO,String.format("Client %s registred and send history",name));
+                success = true;
+                LOGGER.log(Level.INFO,String.format("Client %s registred",name));
             } else {
                 LOGGER.log(Level.INFO,"Name is invalid");
                 ChatMessage answerMessage = new ChatMessage("Name " + name + " already in use. Choose another one.", server.getSystemUserName());
                 client.sendMessage(answerMessage);
             }
         }
+        // Send history without lock
+        if(success) {
+            for (ChatMessage message : server.getLastMessages()) {
+                client.sendMessage(message);
+            }
+            LOGGER.log(Level.INFO,String.format("Client %s send history",name));
+        }
+
+
+
     }
 }

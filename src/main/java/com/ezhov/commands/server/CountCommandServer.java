@@ -19,6 +19,7 @@ public class CountCommandServer extends ServerChatCommand {
 
     @Override
     public void action(List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
+        action(null,null,params);
     }
 
     @Override
