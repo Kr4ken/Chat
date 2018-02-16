@@ -1,6 +1,5 @@
 package com.ezhov.commands.server;
 
-import com.ezhov.commands.server.ChatCommand;
 import com.ezhov.controller.ChatClientController;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
@@ -9,10 +8,11 @@ import com.ezhov.server.ChatServer;
 
 import java.util.List;
 
-public class CountCommand extends ChatCommand {
-    public CountCommand() {
-        command = "/count";
-        info = "Show exist count clients in chat";
+public class CloseCommandServer extends ServerChatCommand {
+
+    public CloseCommandServer() {
+        command = "/close";
+        info = "Close connection";
     }
 
     @Override
@@ -21,8 +21,10 @@ public class CountCommand extends ChatCommand {
 
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
-        System.out.println("Execute count command");
-        ChatMessage countMessage = new ChatMessage(String.format("%d Clients in chat now", server.getClients().size()), server.getSystemUserName());
-        client.sendMessage(countMessage);
+        System.out.println("Execute close command");
+        ChatMessage closeMessage = new ChatMessage(command, server.getSystemUserName());
+        client.sendMessage(closeMessage);
+        client.stop();
+        server.removeClient(client);
     }
 }

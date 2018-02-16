@@ -1,6 +1,5 @@
 package com.ezhov.commands.server;
 
-import com.ezhov.commands.server.ChatCommand;
 import com.ezhov.controller.ChatClientController;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
@@ -8,15 +7,18 @@ import com.ezhov.exceptions.IncorrectMessageException;
 import com.ezhov.server.ChatServer;
 
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
-public class RegisterChatCommand extends ChatCommand {
-    public RegisterChatCommand() {
+public class RegisterServerChatCommand extends ServerChatCommand {
+    public RegisterServerChatCommand() {
         command = "/register";
         info = "Command for registration. Use when you wanna start to chat or change name";
     }
 
+    public static final Object lock = new Object();
+
     private Boolean isValidName(ChatServer server, String name) {
-        List<ChatClientController> clients = server.getClients();
+        LinkedBlockingDeque<ChatClientController> clients = server.getClients();
         Boolean nameExist = clients.stream().anyMatch(chatClient -> name.equals(chatClient.getClientName()));
         Boolean systemEquals = name.equals(server.getSystemUserName());
         return !systemEquals && !nameExist;
@@ -35,21 +37,23 @@ public class RegisterChatCommand extends ChatCommand {
         // This command have one param and this is name
         String name = params.get(0);
         System.out.println("register name = " + name);
-        if (isValidName(server, name)) {
-            System.out.println("Name is valid");
-            client.setClientName(name);
-            System.out.println("Client name set " + client.getClientName());
-            ChatMessage answerMessage = new ChatMessage(String.format("%s %s", command, name), server.getSystemUserName());
-            client.sendMessage(answerMessage);
-            System.out.println("Client send message " + answerMessage.getFormatMessage());
-            for (ChatMessage message : server.getLastMessages()) {
-                client.sendMessage(message);
+        synchronized (lock) {
+            if (isValidName(server, name)) {
+                System.out.println("Name is valid");
+                client.setClientName(name);
+                System.out.println("Client name set " + client.getClientName());
+                ChatMessage answerMessage = new ChatMessage(String.format("%s %s", command, name), server.getSystemUserName());
+                client.sendMessage(answerMessage);
+                System.out.println("Client send message " + answerMessage.getFormatMessage());
+                for (ChatMessage message : server.getLastMessages()) {
+                    client.sendMessage(message);
+                }
+                System.out.println("Client send history ");
+            } else {
+                System.out.println("Name is invalid");
+                ChatMessage answerMessage = new ChatMessage("Name " + name + " already in use. Choose another one.", server.getSystemUserName());
+                client.sendMessage(answerMessage);
             }
-            System.out.println("Client send history ");
-        } else {
-            System.out.println("Name is invalid");
-            ChatMessage answerMessage = new ChatMessage("Name " + name + " already in use. Choose another one.", server.getSystemUserName());
-            client.sendMessage(answerMessage);
         }
     }
 }

@@ -1,6 +1,4 @@
-package com.ezhov.server;
-
-import com.ezhov.connector.ListenerSettings;
+package com.ezhov.settings;
 
 public class ChatServerSettings {
     private ListenerSettings listenerSettings;

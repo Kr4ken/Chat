@@ -1,16 +1,15 @@
 package com.ezhov.client;
 
-import com.ezhov.commands.client.ChatCommand;
+import com.ezhov.commands.client.ClientChatCommand;
 import com.ezhov.connector.ChatConnector;
-import com.ezhov.connector.ConnectorSettings;
-import com.ezhov.connector.ListenerSettings;
+import com.ezhov.settings.ConnectorSettings;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
 import com.ezhov.exceptions.IncorrectMessageException;
+import sun.misc.IOUtils;
+import sun.nio.ch.IOUtil;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +19,7 @@ public class ChatClient {
     protected final String commandPatternString = "^\\/\\w+\\ *(\\w+\\ *)*";
     protected ChatConnector connector;
     protected List<ChatMessage> messages;
-    protected List<ChatCommand> commands;
+    protected List<ClientChatCommand> commands;
     protected String currentMessage;
     protected Boolean isStarted;
     protected String name;
@@ -70,6 +69,7 @@ public class ChatClient {
         try {
             connector.disconnect();
             scanner.close();
+            inputStream.read("\n".getBytes());
             inputStream.close();
             printStream.close();
         } catch (IOException ex) {
@@ -100,7 +100,7 @@ public class ChatClient {
     protected void executeCommand(String commandString) {
         String command = getCommandFromMessage(commandString);
         List<String> params = getParamsFromMessage(commandString);
-        Optional<ChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
+        Optional<ClientChatCommand> chatCommand = commands.stream().filter(e -> e.getCommand().equals(command)).findAny();
         if (chatCommand.isPresent()) {
             try {
                 chatCommand.get().action(params);

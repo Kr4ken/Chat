@@ -1,4 +1,4 @@
-package com.ezhov.connector;
+package com.ezhov.settings;
 
 public class ListenerSettings {
     private Integer portNumber;

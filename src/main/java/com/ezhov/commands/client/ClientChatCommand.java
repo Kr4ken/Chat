@@ -6,12 +6,12 @@ import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.util.List;
 
-public abstract class ChatCommand {
+public abstract class ClientChatCommand {
     protected String command;
     protected String info;
     protected ChatClient client;
 
-    public ChatCommand(ChatClient client) {
+    public ClientChatCommand(ChatClient client) {
         this.client = client;
     }
 

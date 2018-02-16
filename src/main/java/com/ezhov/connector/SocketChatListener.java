@@ -1,5 +1,7 @@
 package com.ezhov.connector;
 
+import com.ezhov.settings.ListenerSettings;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;

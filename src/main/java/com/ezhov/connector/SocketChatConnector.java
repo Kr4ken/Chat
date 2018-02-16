@@ -2,6 +2,7 @@ package com.ezhov.connector;
 
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
+import com.ezhov.settings.ConnectorSettings;
 
 import java.io.*;
 import java.net.Socket;

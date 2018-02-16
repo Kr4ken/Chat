@@ -2,9 +2,8 @@ package com.ezhov;
 
 import com.ezhov.client.ChatClient;
 import com.ezhov.client.ChatClientTerminal;
-import com.ezhov.client.ClientSettings;
-import com.ezhov.connector.ConnectorSettings;
-import com.ezhov.connector.ListenerSettings;
+import com.ezhov.settings.ClientSettings;
+import com.ezhov.settings.ConnectorSettings;
 
 import java.io.IOException;
 

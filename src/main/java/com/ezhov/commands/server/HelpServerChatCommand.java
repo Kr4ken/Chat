@@ -1,6 +1,5 @@
 package com.ezhov.commands.server;
 
-import com.ezhov.commands.server.ChatCommand;
 import com.ezhov.controller.ChatClientController;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectCommandFormat;
@@ -9,8 +8,8 @@ import com.ezhov.server.ChatServer;
 
 import java.util.List;
 
-public class HelpChatCommand extends ChatCommand {
-    public HelpChatCommand() {
+public class HelpServerChatCommand extends ServerChatCommand {
+    public HelpServerChatCommand() {
         command = "/help";
         info = "List all avaliable commands";
     }
@@ -23,8 +22,8 @@ public class HelpChatCommand extends ChatCommand {
     @Override
     public void action(ChatClientController client, ChatServer server, List<String> params) throws IncorrectCommandFormat, IncorrectMessageException {
         System.out.println("Execute help command");
-        for (ChatCommand chatCommand : server.getCommands()) {
-            ChatMessage answerMessage = new ChatMessage(String.format("> %s - %s", chatCommand.getCommand(), chatCommand.getInfo()), server.getSystemUserName());
+        for (ServerChatCommand serverChatCommand : server.getCommands()) {
+            ChatMessage answerMessage = new ChatMessage(String.format("> %s - %s", serverChatCommand.getCommand(), serverChatCommand.getInfo()), server.getSystemUserName());
             client.sendMessage(answerMessage);
         }
     }

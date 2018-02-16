@@ -1,10 +1,11 @@
 package com.ezhov.client;
 
-import com.ezhov.commands.client.CloseCommand;
-import com.ezhov.commands.client.RegisterChatCommand;
+import com.ezhov.commands.client.CloseCommandClient;
+import com.ezhov.commands.client.RegisterClientChatCommand;
 import com.ezhov.connector.SocketChatConnector;
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
+import com.ezhov.settings.ClientSettings;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -32,8 +33,8 @@ public class ChatClientTerminal extends ChatClient {
     @Override
     protected void initCommandsList() {
         super.initCommandsList();
-        commands.add(new RegisterChatCommand(this));
-        commands.add(new CloseCommand(this));
+        commands.add(new RegisterClientChatCommand(this));
+        commands.add(new CloseCommandClient(this));
     }
 
     @Override
@@ -41,7 +42,7 @@ public class ChatClientTerminal extends ChatClient {
         super.connect();
         try {
             // First connnect
-            // Register
+            // Auto create register message
             if (name != null || !name.equals("")) {
                 ChatMessage registerMessage = new ChatMessage("/register " + name, name);
                 connector.sendMessage(registerMessage);

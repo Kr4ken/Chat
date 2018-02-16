@@ -2,6 +2,7 @@ package com.ezhov.connector;
 
 import com.ezhov.domain.ChatMessage;
 import com.ezhov.exceptions.IncorrectMessageException;
+import com.ezhov.settings.ListenerSettings;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

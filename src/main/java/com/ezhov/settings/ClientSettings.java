@@ -1,6 +1,4 @@
-package com.ezhov.client;
-
-import com.ezhov.connector.ConnectorSettings;
+package com.ezhov.settings;
 
 public class ClientSettings {
     private ConnectorSettings connectorSettings;

@@ -1,8 +1,8 @@
 package com.ezhov;
 
-import com.ezhov.connector.ListenerSettings;
+import com.ezhov.settings.ListenerSettings;
 import com.ezhov.server.ChatServer;
-import com.ezhov.server.ChatServerSettings;
+import com.ezhov.settings.ChatServerSettings;
 
 public class ServerApp {
     // Args <portNumber>

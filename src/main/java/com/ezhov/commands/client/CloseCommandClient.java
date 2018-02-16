@@ -6,9 +6,9 @@ import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.util.List;
 
-public class CloseCommand extends ChatCommand {
+public class CloseCommandClient extends ClientChatCommand {
 
-    public CloseCommand(ChatClient client) {
+    public CloseCommandClient(ChatClient client) {
         super(client);
         command = "/close";
         info = "Close all connections. And close chat";

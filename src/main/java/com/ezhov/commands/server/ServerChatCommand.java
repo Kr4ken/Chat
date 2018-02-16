@@ -7,7 +7,7 @@ import com.ezhov.server.ChatServer;
 
 import java.util.List;
 
-public abstract class ChatCommand {
+public abstract class ServerChatCommand {
     protected String command;
     protected String info;
 

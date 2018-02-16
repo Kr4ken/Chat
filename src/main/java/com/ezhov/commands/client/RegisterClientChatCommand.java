@@ -6,10 +6,10 @@ import com.ezhov.exceptions.IncorrectMessageException;
 
 import java.util.List;
 
-public class RegisterChatCommand extends ChatCommand {
+public class RegisterClientChatCommand extends ClientChatCommand {
 
 
-    public RegisterChatCommand(ChatClient client) {
+    public RegisterClientChatCommand(ChatClient client) {
         super(client);
         command = "/register";
         info = "Client side command to registration";
